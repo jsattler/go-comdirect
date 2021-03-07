@@ -1,7 +1,7 @@
-Comdirect Golang Client
+Comdirect Client Library
 ===
-This project provides a client to interact with the comdirect REST API.
-
+This project provides a client library to interact with the comdirect REST API.
+The library is written in golang.
 
 Install
 ---
@@ -12,6 +12,7 @@ $ go get github.com/j-sattler/comdirect-golang
 
 Examples
 ---
+TODO
 
 TO DO
 ---
