@@ -2,6 +2,8 @@ Comdirect Client Library
 ===
 This project provides a client library to interact with the comdirect REST API. The library is written in golang.
 
+> The library is unstable at the moment and will change frequently until version 1.0.0 is released.
+
 Install
 ---
 To use the client within your application simply run
