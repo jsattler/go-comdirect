@@ -20,10 +20,11 @@ const (
 	ContentTypeHeaderKey            = "Content-Type"
 	AcceptHeaderKey                 = "Accept"
 
-	DefaultHttpTimeout = time.Second * 30
-	HttpsScheme        = "https"
-	BearerPrefix       = "Bearer "
-	PasswordGrantType  = "password"
+	DefaultHttpTimeout          = time.Second * 30
+	HttpsScheme                 = "https"
+	BearerPrefix                = "Bearer "
+	PasswordGrantType           = "password"
+	ComdirectSecondaryGrantType = "cd_secondary"
 )
 
 type Client struct {

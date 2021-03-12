@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+// TODO: lots of refactoring required, first attempt for auth flow
+
 type Authenticator struct {
 	AuthOptions *AuthOptions
 	http        *http.Client
@@ -99,15 +101,19 @@ func (a *Authenticator) Authenticate() (*AccessToken, error) {
 		return nil, err
 	}
 
-	validatedSessionObject, err := a.validateSessionTan(sessionObject, accessToken)
+	_, err = a.validateSessionTan(sessionObject, accessToken)
 
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println(validatedSessionObject)
+	secondaryFlow, err := a.secondaryFlow(accessToken)
 
-	return accessToken, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return secondaryFlow, nil
 }
 
 func (*Authenticator) Refresh() {
@@ -230,8 +236,6 @@ func (a *Authenticator) validateSessionTan(sessionObject *SessionObject, token *
 		return nil, err
 	}
 
-	log.Println(string(requestInfoJson))
-
 	req := &http.Request{
 		Method: http.MethodPost,
 		URL: &url.URL{
@@ -262,19 +266,21 @@ func (a *Authenticator) validateSessionTan(sessionObject *SessionObject, token *
 		return nil, errors.New("missing once-authentication-info header")
 	}
 
-	onceAuthenticationInfo := res.Header.Get(OnceAuthenticationInfoHeaderKey)
+	onceAuthInfoJson := res.Header.Get(OnceAuthenticationInfoHeaderKey)
 
-	onceAuthenticationInfoStr := &OnceAuthenticationInfo{}
-	err = json.Unmarshal([]byte(onceAuthenticationInfo), onceAuthenticationInfoStr)
+	onceAuthInfo := &OnceAuthenticationInfo{}
+	err = json.Unmarshal([]byte(onceAuthInfoJson), onceAuthInfo)
 
 	if err != nil {
 		return nil, err
 	}
 
-	// comdirect changed their API. Now this is not working anymore...
-	//err = a.isActivated(onceAuthenticationInfoStr, string(requestInfoJson), token)
+	// comdirect broke their API. Now this is not working anymore...
+	//err = a.isActivated(onceAuthInfo, string(requestInfoJson), token)
 
-	time.Sleep(time.Second * 20) // give the user 20 seconds to activate Session TAN
+	time.Sleep(time.Second * 30) // give the user 30 seconds to activate Session TAN
+
+	err = a.activateSessionTan(sessionObject, token, onceAuthInfo)
 
 	return newSessionObject, res.Body.Close()
 }
@@ -312,7 +318,81 @@ func (a *Authenticator) isActivated(info *OnceAuthenticationInfo, requestInfo st
 }
 
 // Step 2.4
-func (a *Authenticator) activateSessionTan(){
+func (a *Authenticator) activateSessionTan(object *SessionObject, token *AccessToken, info *OnceAuthenticationInfo) error {
 
+	requestInfo := &RequestInfo{
+		ClientRequestId: ClientRequestId{
+			SessionId: a.SessionId,
+			RequestId: GenerateRequestId(),
+		},
+	}
+
+	requestInfoJson, err := json.Marshal(requestInfo)
+	if err != nil {
+		return err
+	}
+
+	soJson, err := json.Marshal(object)
+
+	req := &http.Request{
+		Method: http.MethodPatch,
+		URL: &url.URL{
+			Host:   Host,
+			Scheme: HttpsScheme,
+			Path:   fmt.Sprintf("/api/session/clients/user/v1/sessions/%s", object.Identifier),
+		},
+		Header: http.Header{
+			AuthorizationHeaderKey:          {BearerPrefix + token.AccessToken},
+			AcceptHeaderKey:                 {mediatype.ApplicationJson},
+			ContentTypeHeaderKey:            {mediatype.ApplicationJson},
+			HttpRequestInfoHeaderKey:        {string(requestInfoJson)},
+			OnceAuthenticationInfoHeaderKey: {fmt.Sprintf(`{"id":"%s"}`, info.Id)},
+		},
+		Body: ioutil.NopCloser(strings.NewReader(string(soJson))),
+	}
+
+	res, err := a.http.Do(req)
+
+	if err != nil {
+		return err
+	}
+
+	log.Println(res.StatusCode)
+
+	return nil
 }
 
+// Step 2.5
+func (a *Authenticator) secondaryFlow(token *AccessToken) (*AccessToken, error) {
+
+	body := url.Values{
+		"token":         {token.AccessToken},
+		"grant_type":    {ComdirectSecondaryGrantType},
+		"client_id":     {a.AuthOptions.ClientId},
+		"client_secret": {a.AuthOptions.ClientSecret},
+	}.Encode()
+
+	req := &http.Request{
+		Method: http.MethodPost,
+		URL:    &url.URL{Host: Host, Scheme: HttpsScheme, Path: OAuthTokenPath},
+		Header: http.Header{
+			http.CanonicalHeaderKey(AcceptHeaderKey):      {mediatype.ApplicationJson},
+			http.CanonicalHeaderKey(ContentTypeHeaderKey): {mediatype.XWWWFormUrlEncoded},
+		},
+		Body: ioutil.NopCloser(strings.NewReader(body)),
+	}
+
+	res, err := a.http.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	finalToken := &AccessToken{}
+	if err = json.NewDecoder(res.Body).Decode(finalToken); err != nil {
+		return nil, err
+	}
+
+	log.Println("Final token:", token.AccessToken)
+	return finalToken, res.Body.Close()
+}
