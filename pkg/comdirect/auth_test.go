@@ -1,7 +1,6 @@
 package comdirect
 
 import (
-	"log"
 	"os"
 	"testing"
 )
@@ -14,17 +13,11 @@ func TestNewAuthenticator(t *testing.T) {
 		ClientSecret: "",
 		AutoRefresh:  true,
 	}
-	sessionId, err := GenerateSessionId()
 
-	if err != nil {
-		t.Errorf("Failed to generate SessionId")
-		return
-	}
+	authenticator := options.NewAuthenticator()
 
-	authenticator := options.NewAuthenticator(sessionId)
-
-	if authenticator.AuthOptions != options {
-		t.Errorf("Actual AuthOptions differ from expected: %v", authenticator.AuthOptions)
+	if authenticator.authOptions != options {
+		t.Errorf("Actual AuthOptions differ from expected: %v", authenticator.authOptions)
 	}
 }
 
@@ -37,17 +30,10 @@ func TestNewAuthenticator2(t *testing.T) {
 		AutoRefresh:  true,
 	}
 
-	sessionId, err := GenerateSessionId()
+	authenticator := NewAuthenticator(options)
 
-	if err != nil {
-		t.Errorf("Failed to generate SessionId")
-		return
-	}
-
-	authenticator := NewAuthenticator(options, sessionId)
-
-	if authenticator.AuthOptions != options {
-		t.Errorf("Actual AuthOptions differ from expected: %v", authenticator.AuthOptions)
+	if authenticator.authOptions != options {
+		t.Errorf("Actual AuthOptions differ from expected: %v", authenticator.authOptions)
 	}
 
 }
@@ -71,11 +57,6 @@ func AuthenticatorFromEnv() *Authenticator {
 		ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
 		AutoRefresh:  true,
 	}
-	sessionId, err := GenerateSessionId()
 
-	if err != nil {
-		log.Fatal("Failed to generate session id")
-	}
-
-	return options.NewAuthenticator(sessionId)
+	return options.NewAuthenticator()
 }
