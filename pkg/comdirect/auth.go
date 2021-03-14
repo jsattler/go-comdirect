@@ -468,7 +468,7 @@ func (a *authState) updateRequestId() error {
 
 func (a *authState) initializeRequestInfo() error {
 	requestId := generateRequestId()
-	sessionId, err := GenerateSessionId()
+	sessionId, err := generateSessionId()
 
 	if err != nil {
 		return err
