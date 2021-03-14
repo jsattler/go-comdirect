@@ -41,7 +41,7 @@ func TestNewAuthenticator2(t *testing.T) {
 func TestAuthenticator_Authenticate(t *testing.T) {
 	authenticator := AuthenticatorFromEnv()
 
-	_, err := authenticator.Authenticate()
+	_, _, err := authenticator.Authenticate()
 	if err != nil {
 		t.Errorf("Token should not be nil")
 		return

@@ -32,7 +32,7 @@ type Authenticator struct {
 type authState struct {
 	accessToken  *AccessToken
 	session      *session
-	requestInfo  *requestInfo
+	requestInfo  *RequestInfo
 	onceAuthInfo *onceAuthenticationInfo
 }
 
@@ -62,11 +62,11 @@ type AccessToken struct {
 	ContactId    int    `json:"kontaktId"`
 }
 
-type requestInfo struct {
-	ClientRequestId clientRequestId `json:"clientRequestId"`
+type RequestInfo struct {
+	ClientRequestId ClientRequestId `json:"ClientRequestId"`
 }
 
-type clientRequestId struct {
+type ClientRequestId struct {
 	SessionId string `json:"sessionId"`
 	RequestId string `json:"requestId"`
 }
@@ -120,42 +120,43 @@ func NewAuthenticator(options *AuthOptions) *Authenticator {
 
 // Authenticate against the comdirect REST API with given AuthOptions.
 // Calling this function initializes a new authState using the session passed to the Authenticator.
-func (a *Authenticator) Authenticate() (*AccessToken, error) {
+// TODO: do not return RequestInfo from this function. Intermediate solution to test flow.
+func (a *Authenticator) Authenticate() (*AccessToken, *RequestInfo, error) {
 
 	state, err := a.initializeAuthState()
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Step 2.1: OAuth2 Resource Owner Password Credentials Grant
 	if err = a.passwordGrant(state); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Step 2.2: Request the session status
 	if err = a.fetchSessionStatus(state); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Step 2.3: Validate session TAN
 	if err = a.validateSessionTan(state); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	time.Sleep(time.Second * 30) // give the user 30 seconds to solve TAN challenge
 
 	// Step 2.4: Activate session TAN
 	if err = a.activateSessionTan(state); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Step 2.5: OAuth2 Comdirect Secondary Flow to extend scopes
 	if err = a.secondaryFlow(state); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return state.accessToken, nil
+	return state.accessToken, state.requestInfo, nil
 }
 
 func IsAuthenticated() bool {
@@ -213,7 +214,7 @@ func (a *Authenticator) passwordGrant(state *authState) error {
 func (a *Authenticator) fetchSessionStatus(state *authState) error {
 
 	if state.requestInfo == nil {
-		return errors.New("requestInfo of authState cannot be nil")
+		return errors.New("RequestInfo of authState cannot be nil")
 	}
 	if state.accessToken == nil {
 		return errors.New("accessToken of authState cannot be nil")
@@ -474,8 +475,8 @@ func (a *authState) initializeRequestInfo() error {
 		return err
 	}
 
-	a.requestInfo = &requestInfo{
-		ClientRequestId: clientRequestId{
+	a.requestInfo = &RequestInfo{
+		ClientRequestId: ClientRequestId{
 			SessionId: sessionId,
 			RequestId: requestId,
 		},
