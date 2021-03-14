@@ -40,7 +40,7 @@ func NewWithAuthOptions(options *AuthOptions) *Client {
 	return nil
 }
 
-func generateSessionId() (string, error) {
+func GenerateSessionId() (string, error) {
 	buf := make([]byte, 16)
 	if _, err := rand.Read(buf); err != nil {
 		return "", err

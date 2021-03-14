@@ -6,7 +6,7 @@ import (
 )
 
 func TestGenerateSessionId(t *testing.T) {
-	sessionId, err := generateSessionId()
+	sessionId, err := GenerateSessionId()
 
 	if err != nil {
 		t.Errorf("Error generating session id")
