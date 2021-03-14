@@ -1,6 +1,6 @@
 `comdirect-golang`
 ===
-`comdirect-golang` is a client library to interact with the comdirect REST API.
+`comdirect-golang` is a client library to interact with the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html).
 
 > The library is unstable at the moment and will change frequently until version 1.0.0 is released.
 
