@@ -28,7 +28,7 @@ const (
 )
 
 type Client struct {
-	Authenticator *Authenticator
+	authenticator *Authenticator
 	http          *http.Client
 }
 
@@ -40,7 +40,7 @@ func NewWithAuthOptions(options *AuthOptions) *Client {
 	return nil
 }
 
-func GenerateSessionId() (string, error) {
+func generateSessionId() (string, error) {
 	buf := make([]byte, 16)
 	if _, err := rand.Read(buf); err != nil {
 		return "", err
@@ -48,7 +48,7 @@ func GenerateSessionId() (string, error) {
 	return hex.EncodeToString(buf), nil
 }
 
-func GenerateRequestId() string {
+func generateRequestId() string {
 	unix := time.Now().Unix()
 	id := fmt.Sprintf("%09d", unix)
 	return id[0:9]
