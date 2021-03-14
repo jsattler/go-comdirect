@@ -63,7 +63,7 @@ type AccessToken struct {
 }
 
 type RequestInfo struct {
-	ClientRequestId ClientRequestId `json:"ClientRequestId"`
+	ClientRequestId ClientRequestId `json:"clientRequestId"`
 }
 
 type ClientRequestId struct {
@@ -88,12 +88,6 @@ type link struct {
 	Href   string `json:"href"`
 	Rel    string `json:"rel"`
 	Method string `json:"method"`
-}
-
-type OAuther interface {
-	Authenticate()
-	Refresh()
-	Revoke()
 }
 
 // Create a new Authenticator from AuthOptions with a sessionId passed to the function.
