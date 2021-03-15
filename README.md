@@ -52,7 +52,7 @@ TO DO
 ---
 
 * [ ] Auth
-    * [ ] P_TAN_PUSH
+    * [x] P_TAN_PUSH
     * [ ] P_TAN_PHOTO
     * [ ] P_TAN_APP
 * [ ] Refresh Token Flow
