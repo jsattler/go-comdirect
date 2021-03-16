@@ -1,6 +1,8 @@
 package comdirect
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -481,4 +483,18 @@ func (a *authState) initializeRequestInfo() error {
 // Construct a url.URL with Host 'api.comdirect.de' HttpsScheme and a given path.
 func comdirectUrl(path string) *url.URL {
 	return &url.URL{Host: Host, Scheme: HttpsScheme, Path: path}
+}
+
+func generateSessionId() (string, error) {
+	buf := make([]byte, 16)
+	if _, err := rand.Read(buf); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(buf), nil
+}
+
+func generateRequestId() string {
+	unix := time.Now().Unix()
+	id := fmt.Sprintf("%09d", unix)
+	return id[0:9]
 }

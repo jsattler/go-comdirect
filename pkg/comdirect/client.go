@@ -1,9 +1,6 @@
 package comdirect
 
 import (
-	"crypto/rand"
-	"encoding/hex"
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -40,16 +37,3 @@ func NewWithAuthOptions(options *AuthOptions) *Client {
 	return nil
 }
 
-func generateSessionId() (string, error) {
-	buf := make([]byte, 16)
-	if _, err := rand.Read(buf); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(buf), nil
-}
-
-func generateRequestId() string {
-	unix := time.Now().Unix()
-	id := fmt.Sprintf("%09d", unix)
-	return id[0:9]
-}
