@@ -27,7 +27,6 @@ options := &comdirect.AuthOptions{
     Password:     os.Getenv("COMDIRECT_PASSWORD"),
     ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
     ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
-    AutoRefresh:  true,
 }
 authenticator := options.NewAuthenticator()
 ```
@@ -41,29 +40,29 @@ options := &comdirect.AuthOptions{
     Password:     os.Getenv("COMDIRECT_PASSWORD"),
     ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
     ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
-    AutoRefresh:  true,
 }
 
 authenticator := comdirect.NewAuthenticator(options)
 ```
 
 
-TO DO
+Roadmap / To-Do
 ---
+> Bold items have priority
 
-* [ ] Auth
+* [ ] **Auth**
     * [x] P_TAN_PUSH
     * [ ] P_TAN_PHOTO
     * [ ] P_TAN_APP
 * [ ] Refresh Token Flow
 * [ ] Revoke Token
-* [ ] Account
-* [ ] Depot
+* [ ] **Account**
+  * [x] All Balances
+  * [x] Balance by Account ID
+  * [ ] Transactions
+* [ ] **Depot**
 * [ ] Instrument
-* [ ] Order
+* [ ] **Order**
 * [ ] Quote
 * [ ] Documents
 * [ ] Reports
-
-Third Party Libraries
----
