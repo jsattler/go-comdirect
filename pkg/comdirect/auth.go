@@ -11,14 +11,17 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 )
 
 // TODO: Should the Authenticator struct be "stateless" (access token, request info, session etc. not part of struct).
+// TODO: Currently the Authenticator is responsible for the AuthState and is responsible for state transitions. Not sure if this is a good approach.
 // TODO: Not sure how and where to encapsulate state during the authentication flow. There is state and it should be clear how to handle it.
 // TODO: Currently it is not possible to chose between TAN types (Photo TAN, Push TAN etc.). Only testing with P_TAN_PUSH at the moment.
 // TODO: Let the user pass in a preconfigured http.Client to follow dependency injection principle.
 // TODO: Think about accessibility of functions, structs, etc.
+// TODO: Provide an interface
 
 // Authenticator is responsible for authenticating against the comdirect REST API.
 // It uses the given AuthOptions for authentication and returns an AccessToken in case
@@ -26,16 +29,18 @@ import (
 type Authenticator struct {
 	authOptions *AuthOptions
 	http        *http.Client
-	accessToken *AccessToken
+	authState   *AuthState
 }
 
-// authState encapsulates the state that is required for the comdirect authentication flow.
-// The authState is passed between requests during the authentication flow.
-type authState struct {
-	accessToken  *AccessToken
-	session      *session
-	requestInfo  *RequestInfo
-	onceAuthInfo *onceAuthenticationInfo
+// AuthState encapsulates the state that is required for the comdirect authentication flow.
+// The AuthState is passed between requests during the authentication flow.
+type AuthState struct {
+	lock                         sync.Mutex
+	accessToken                  *AccessToken
+	requestInfo                  *RequestInfo
+	lastSuccessfulAuthentication *time.Time
+	session                      *session
+	onceAuthInfo                 *onceAuthenticationInfo
 }
 
 // AuthOptions encapsulates the information for authentication against the comdirect REST API.
@@ -49,7 +54,6 @@ type AuthOptions struct {
 	Password     string
 	ClientId     string
 	ClientSecret string
-	AutoRefresh  bool
 }
 
 // AccessToken represents an OAuth2 token that is returned after authenticating with the comdirect REST API.
@@ -97,6 +101,9 @@ type link struct {
 func (a *AuthOptions) NewAuthenticator() *Authenticator {
 	return &Authenticator{
 		authOptions: a,
+		authState: &AuthState{
+			requestInfo: newRequestInfo(),
+		},
 		http: &http.Client{
 			Timeout: DefaultHttpTimeout,
 		},
@@ -108,6 +115,9 @@ func (a *AuthOptions) NewAuthenticator() *Authenticator {
 func NewAuthenticator(options *AuthOptions) *Authenticator {
 	return &Authenticator{
 		authOptions: options,
+		authState: &AuthState{
+			requestInfo: newRequestInfo(),
+		},
 		http: &http.Client{
 			Timeout: DefaultHttpTimeout,
 		},
@@ -115,66 +125,73 @@ func NewAuthenticator(options *AuthOptions) *Authenticator {
 }
 
 // Authenticate against the comdirect REST API with given AuthOptions.
-// Calling this function initializes a new authState using the session passed to the Authenticator.
-// TODO: do not return RequestInfo from this function. Intermediate solution to test flow.
-func (a *Authenticator) Authenticate() (*AccessToken, *RequestInfo, error) {
-
-	state, err := a.initializeAuthState()
-
-	if err != nil {
-		return nil, nil, err
-	}
+// Calling this function initializes a new AuthState using the session passed to the Authenticator.
+func (a *Authenticator) Authenticate() (*AuthState, error) {
+	a.authState.lock.Lock()         // acquire the lock for the full authentication process
+	defer a.authState.lock.Unlock() // release the lock after authentication
 
 	// Step 2.1: OAuth2 Resource Owner Password Credentials Grant
-	if err = a.passwordGrant(state); err != nil {
-		return nil, nil, err
+	if err := a.passwordGrant(); err != nil {
+		return nil, err
 	}
 
 	// Step 2.2: Request the session status
-	if err = a.fetchSessionStatus(state); err != nil {
-		return nil, nil, err
+	if err := a.fetchSessionStatus(); err != nil {
+		return nil, err
 	}
 
 	// Step 2.3: Validate session TAN
-	if err = a.validateSessionTan(state); err != nil {
-		return nil, nil, err
+	if err := a.validateSessionTan(); err != nil {
+		return nil, err
 	}
 
-	time.Sleep(time.Second * 30) // give the user 30 seconds to solve TAN challenge
+	time.Sleep(time.Second * 10) // give the user 10 seconds to solve TAN challenge
 
 	// Step 2.4: Activate session TAN
-	if err = a.activateSessionTan(state); err != nil {
-		return nil, nil, err
+	if err := a.activateSessionTan(); err != nil {
+		return nil, err
 	}
 
 	// Step 2.5: OAuth2 Comdirect Secondary Flow to extend scopes
-	if err = a.secondaryFlow(state); err != nil {
-		return nil, nil, err
+	if err := a.secondaryFlow(); err != nil {
+		return nil, err
+	}
+	successFullAuthTime := time.Now()
+	a.authState.lastSuccessfulAuthentication = &successFullAuthTime
+
+	return a.authState, nil
+}
+
+// Returns whether or not the Authenticator is still authenticated.
+// This is an offline check, which means, that no request is made to check a valid authentication.
+// The check is based on the information contained in the AuthState and AccessToken.
+func (a *Authenticator) IsAuthenticated() bool {
+	if a.authState.accessToken == nil {
+		return false
 	}
 
-	return state.accessToken, state.requestInfo, nil
+	if a.authState.lastSuccessfulAuthentication == nil {
+		return false
+	}
+
+	expiresIn := time.Second * time.Duration(a.authState.accessToken.ExpiresIn)
+	lastSuccessfulAuthentication := a.authState.lastSuccessfulAuthentication
+	expires := lastSuccessfulAuthentication.Add(expiresIn)
+
+	return expires.After(time.Now())
 }
 
-func IsAuthenticated() bool {
-	// TODO: decide based on AccessToken information
-	return false
-}
-
-func (*Authenticator) Refresh() {
+func (a *Authenticator) Refresh() {
 	// TODO
 }
 
-func (*Authenticator) Revoke() {
+func (a *Authenticator) Revoke() {
 	// TODO
 }
 
 // Step 2.1
 // TODO: outsource state validation
-func (a *Authenticator) passwordGrant(state *authState) error {
-
-	if state.requestInfo.ClientRequestId.SessionId == "" {
-		return errors.New("sessionId of authState cannot be empty")
-	}
+func (a *Authenticator) passwordGrant() error {
 
 	urlEncoded := url.Values{
 		"username":      {a.authOptions.Username},
@@ -195,8 +212,8 @@ func (a *Authenticator) passwordGrant(state *authState) error {
 		Body: body,
 	}
 
-	state.accessToken = &AccessToken{}
-	_, err := a.request(req, state.accessToken)
+	a.authState.accessToken = &AccessToken{}
+	_, err := a.request(req, a.authState.accessToken)
 
 	if err != nil {
 		return err
@@ -207,16 +224,16 @@ func (a *Authenticator) passwordGrant(state *authState) error {
 
 // Step 2.2
 // TODO: outsource state validation
-func (a *Authenticator) fetchSessionStatus(state *authState) error {
+func (a *Authenticator) fetchSessionStatus() error {
 
-	if state.requestInfo == nil {
-		return errors.New("RequestInfo of authState cannot be nil")
+	if a.authState.requestInfo == nil {
+		return errors.New("requestInfo of authState cannot be nil")
 	}
-	if state.accessToken == nil {
+	if a.authState.accessToken == nil {
 		return errors.New("accessToken of authState cannot be nil")
 	}
 
-	requestInfoJson, err := json.Marshal(state.requestInfo)
+	requestInfoJson, err := json.Marshal(a.authState.requestInfo)
 	if err != nil {
 		return err
 	}
@@ -225,7 +242,7 @@ func (a *Authenticator) fetchSessionStatus(state *authState) error {
 		Method: http.MethodGet,
 		URL:    comdirectUrl("/api/session/clients/user/v1/sessions"),
 		Header: http.Header{
-			AuthorizationHeaderKey:   {BearerPrefix + state.accessToken.AccessToken},
+			AuthorizationHeaderKey:   {BearerPrefix + a.authState.accessToken.AccessToken},
 			AcceptHeaderKey:          {mediatype.ApplicationJson},
 			ContentTypeHeaderKey:     {mediatype.ApplicationJson},
 			HttpRequestInfoHeaderKey: {string(requestInfoJson)},
@@ -241,43 +258,42 @@ func (a *Authenticator) fetchSessionStatus(state *authState) error {
 		return errors.New("length of returned session array is zero; expected at least one")
 	}
 
-	state.session = &sessions[0]
+	a.authState.session = &sessions[0]
 
 	return nil
 }
 
 // Step: 2.3
 // TODO: outsource state validation
-func (a *Authenticator) validateSessionTan(state *authState) error {
+func (a *Authenticator) validateSessionTan() error {
 
-	if state.session == nil {
+	if a.authState.session == nil {
 		return errors.New("session of authState cannot be nil")
 	}
-	if state.accessToken == nil {
+	if a.authState.accessToken == nil {
 		return errors.New("accessToken of authState cannot be nil")
 	}
 
-	state.session.Activated2FA = true
-	state.session.SessionTanActive = true
-	jsonSession, err := json.Marshal(state.session)
+	a.authState.session.Activated2FA = true
+	a.authState.session.SessionTanActive = true
+	jsonSession, err := json.Marshal(a.authState.session)
 	if err != nil {
 		return err
 	}
 
-	if err = state.updateRequestId(); err != nil {
-		return err
-	}
-	jsonRequestInfo, err := json.Marshal(state.requestInfo)
+	a.authState.requestInfo.updateRequestId()
+
+	jsonRequestInfo, err := json.Marshal(a.authState.requestInfo)
 	if err != nil {
 		return err
 	}
-	path := fmt.Sprintf("/api/session/clients/user/v1/sessions/%s/validate", state.session.Identifier)
+	path := fmt.Sprintf("/api/session/clients/user/v1/sessions/%s/validate", a.authState.session.Identifier)
 	body := ioutil.NopCloser(strings.NewReader(string(jsonSession)))
 	req := &http.Request{
 		Method: http.MethodPost,
 		URL:    comdirectUrl(path),
 		Header: http.Header{
-			AuthorizationHeaderKey:   {BearerPrefix + state.accessToken.AccessToken},
+			AuthorizationHeaderKey:   {BearerPrefix + a.authState.accessToken.AccessToken},
 			AcceptHeaderKey:          {mediatype.ApplicationJson},
 			ContentTypeHeaderKey:     {mediatype.ApplicationJson},
 			HttpRequestInfoHeaderKey: {string(jsonRequestInfo)},
@@ -285,7 +301,7 @@ func (a *Authenticator) validateSessionTan(state *authState) error {
 		Body: body,
 	}
 
-	res, err := a.request(req, state.session)
+	res, err := a.request(req, a.authState.session)
 
 	if err != nil || res == nil {
 		return err
@@ -297,8 +313,8 @@ func (a *Authenticator) validateSessionTan(state *authState) error {
 
 	jsonOnceAuthInfo := res.Header.Get(OnceAuthenticationInfoHeaderKey)
 
-	state.onceAuthInfo = &onceAuthenticationInfo{}
-	err = json.Unmarshal([]byte(jsonOnceAuthInfo), state.onceAuthInfo)
+	a.authState.onceAuthInfo = &onceAuthenticationInfo{}
+	err = json.Unmarshal([]byte(jsonOnceAuthInfo), a.authState.onceAuthInfo)
 
 	if err != nil {
 		return err
@@ -341,37 +357,36 @@ func (a *Authenticator) isActivated(info *onceAuthenticationInfo, requestInfo st
 
 // Step 2.4
 // TODO: outsource state validation
-func (a *Authenticator) activateSessionTan(state *authState) error {
-	if state.session == nil {
+func (a *Authenticator) activateSessionTan() error {
+	if a.authState.session == nil {
 		return errors.New("session of authState cannot be nil")
 	}
 
-	if state.onceAuthInfo == nil {
+	if a.authState.onceAuthInfo == nil {
 		return errors.New("onceAuthInfo of authState cannot be nil")
 	}
 
-	if state.accessToken == nil {
+	if a.authState.accessToken == nil {
 		return errors.New("accessToken of authState cannot be nil")
 	}
 
-	if err := state.updateRequestId(); err != nil {
-		return err
-	}
-	requestInfoJson, err := json.Marshal(state.requestInfo)
+	a.authState.requestInfo.updateRequestId()
+
+	requestInfoJson, err := json.Marshal(a.authState.requestInfo)
 	if err != nil {
 		return err
 	}
 
-	onceAuthInfoHeader := fmt.Sprintf(`{"id":"%s"}`, state.onceAuthInfo.Id)
-	path := fmt.Sprintf("/api/session/clients/user/v1/sessions/%s", state.session.Identifier)
-	jsonSession, err := json.Marshal(state.session)
+	onceAuthInfoHeader := fmt.Sprintf(`{"id":"%s"}`, a.authState.onceAuthInfo.Id)
+	path := fmt.Sprintf("/api/session/clients/user/v1/sessions/%s", a.authState.session.Identifier)
+	jsonSession, err := json.Marshal(a.authState.session)
 	body := ioutil.NopCloser(strings.NewReader(string(jsonSession)))
 
 	req := &http.Request{
 		Method: http.MethodPatch,
 		URL:    comdirectUrl(path),
 		Header: http.Header{
-			AuthorizationHeaderKey:          {BearerPrefix + state.accessToken.AccessToken},
+			AuthorizationHeaderKey:          {BearerPrefix + a.authState.accessToken.AccessToken},
 			AcceptHeaderKey:                 {mediatype.ApplicationJson},
 			ContentTypeHeaderKey:            {mediatype.ApplicationJson},
 			HttpRequestInfoHeaderKey:        {string(requestInfoJson)},
@@ -380,7 +395,7 @@ func (a *Authenticator) activateSessionTan(state *authState) error {
 		Body: body,
 	}
 
-	_, err = a.request(req, state.session)
+	_, err = a.request(req, a.authState.session)
 
 	if err != nil {
 		return err
@@ -391,14 +406,14 @@ func (a *Authenticator) activateSessionTan(state *authState) error {
 
 // Step 2.5
 // TODO: outsource state validation
-func (a *Authenticator) secondaryFlow(state *authState) error {
+func (a *Authenticator) secondaryFlow() error {
 
-	if state.accessToken == nil {
+	if a.authState.accessToken == nil {
 		return errors.New("accessToken of authState cannot be nil")
 	}
 
 	body := url.Values{
-		"token":         {state.accessToken.AccessToken},
+		"token":         {a.authState.accessToken.AccessToken},
 		"grant_type":    {ComdirectSecondaryGrantType},
 		"client_id":     {a.authOptions.ClientId},
 		"client_secret": {a.authOptions.ClientSecret},
@@ -420,7 +435,7 @@ func (a *Authenticator) secondaryFlow(state *authState) error {
 		return err
 	}
 
-	if err = json.NewDecoder(res.Body).Decode(state.accessToken); err != nil {
+	if err = json.NewDecoder(res.Body).Decode(a.authState.accessToken); err != nil {
 		return err
 	}
 
@@ -440,44 +455,18 @@ func (a *Authenticator) request(request *http.Request, target interface{}) (*htt
 	return res, res.Body.Close()
 }
 
-func (a *Authenticator) initializeAuthState() (*authState, error) {
-
-	state := &authState{}
-	if err := state.initializeRequestInfo(); err != nil {
-		return nil, err
-	}
-
-	return state, nil
+func (r *RequestInfo) updateRequestId() {
+	requestId := generateRequestId()
+	r.ClientRequestId.RequestId = requestId
 }
 
-func (a *authState) updateRequestId() error {
-	if a.requestInfo == nil {
-		err := a.initializeRequestInfo()
-		if err != nil {
-			return err
-		}
-	}
-
-	requestId := generateRequestId()
-	a.requestInfo.ClientRequestId.RequestId = requestId
-	return nil
-}
-
-func (a *authState) initializeRequestInfo() error {
-	requestId := generateRequestId()
-	sessionId, err := generateSessionId()
-
-	if err != nil {
-		return err
-	}
-
-	a.requestInfo = &RequestInfo{
+func newRequestInfo() *RequestInfo {
+	return &RequestInfo{
 		ClientRequestId: ClientRequestId{
-			SessionId: sessionId,
-			RequestId: requestId,
+			SessionId: generateSessionId(),
+			RequestId: generateRequestId(),
 		},
 	}
-	return nil
 }
 
 // Construct a url.URL with Host 'api.comdirect.de' HttpsScheme and a given path.
@@ -485,12 +474,12 @@ func comdirectUrl(path string) *url.URL {
 	return &url.URL{Host: Host, Scheme: HttpsScheme, Path: path}
 }
 
-func generateSessionId() (string, error) {
+func generateSessionId() string {
 	buf := make([]byte, 16)
 	if _, err := rand.Read(buf); err != nil {
-		return "", err
+		return fmt.Sprintf("%032d", time.Now().UnixNano())
 	}
-	return hex.EncodeToString(buf), nil
+	return hex.EncodeToString(buf)
 }
 
 func generateRequestId() string {

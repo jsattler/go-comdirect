@@ -12,7 +12,6 @@ func TestNewAuthenticator(t *testing.T) {
 		Password:     "",
 		ClientId:     "",
 		ClientSecret: "",
-		AutoRefresh:  true,
 	}
 
 	authenticator := options.NewAuthenticator()
@@ -28,7 +27,6 @@ func TestNewAuthenticator2(t *testing.T) {
 		Password:     "",
 		ClientId:     "",
 		ClientSecret: "",
-		AutoRefresh:  true,
 	}
 
 	authenticator := NewAuthenticator(options)
@@ -42,11 +40,14 @@ func TestNewAuthenticator2(t *testing.T) {
 func TestAuthenticator_Authenticate(t *testing.T) {
 	authenticator := AuthenticatorFromEnv()
 
-	_, _, err := authenticator.Authenticate()
+	authState, err := authenticator.Authenticate()
 	if err != nil {
-		t.Errorf("Token should not be nil")
-		return
+		t.Errorf("authentication failed %s", err)
 	}
+
+	isAuthenticated := authenticator.IsAuthenticated()
+	log.Println(isAuthenticated)
+	log.Printf("time: %s, accessToken: %s ", authState.lastSuccessfulAuthentication.String(), authState.accessToken.AccessToken)
 }
 
 // set env variables locally
@@ -56,18 +57,13 @@ func AuthenticatorFromEnv() *Authenticator {
 		Password:     os.Getenv("COMDIRECT_PASSWORD"),
 		ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
 		ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
-		AutoRefresh:  true,
 	}
 
 	return options.NewAuthenticator()
 }
 
 func TestGenerateSessionId(t *testing.T) {
-	sessionId, err := generateSessionId()
-
-	if err != nil {
-		t.Errorf("Error generating session id")
-	}
+	sessionId := generateSessionId()
 
 	if len(sessionId) != 32 {
 		t.Errorf("Length of session id not equal to 32: %d", len(sessionId))
