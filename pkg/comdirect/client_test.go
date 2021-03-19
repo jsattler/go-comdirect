@@ -1,6 +1,7 @@
 package comdirect
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -23,6 +24,21 @@ func TestClient_Balance(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to request account balance %s", err)
 		return
+	}
+}
+
+func TestClient_Transactions(t *testing.T) {
+	client := getClientFromEnv()
+	accountId := os.Getenv("COMDIRECT_ACCOUNT_ID")
+	transactions, err := client.Transactions(accountId)
+
+	if err != nil {
+		t.Errorf("failed to request account balance %s", err)
+		return
+	}
+
+	for _, t := range transactions {
+		fmt.Printf("%v\n", t)
 	}
 }
 
