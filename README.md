@@ -25,10 +25,10 @@ In the following examples we are reading the comdirect credentials from predefin
 // omitting error validation, imports and packages
 
 options := &comdirect.AuthOptions{
-Username:     os.Getenv("COMDIRECT_USERNAME"),
-Password:     os.Getenv("COMDIRECT_PASSWORD"),
-ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
-ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
+    Username:     os.Getenv("COMDIRECT_USERNAME"),
+    Password:     os.Getenv("COMDIRECT_PASSWORD"),
+    ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
+    ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
 }
 authenticator := options.NewAuthenticator()
 ```
@@ -39,10 +39,10 @@ authenticator := options.NewAuthenticator()
 // omitting error validation, imports and packages
 
 options := &comdirect.AuthOptions{
-Username:     os.Getenv("COMDIRECT_USERNAME"),
-Password:     os.Getenv("COMDIRECT_PASSWORD"),
-ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
-ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
+    Username:     os.Getenv("COMDIRECT_USERNAME"),
+    Password:     os.Getenv("COMDIRECT_PASSWORD"),
+    ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
+    ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
 }
 
 authenticator := comdirect.NewAuthenticator(options)
