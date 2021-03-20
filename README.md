@@ -72,6 +72,7 @@ Roadmap / To-Do
 ---
 > Bold items have priority
 
+**Functional**
 * [ ] **Auth**
     * [x] P_TAN_PUSH
     * [ ] P_TAN_PHOTO
@@ -88,3 +89,13 @@ Roadmap / To-Do
 * [ ] Quote
 * [ ] Documents
 * [ ] Reports
+
+**Non-Functional**
+
+* [ ] Proper Error Handling
+  * [ ] Check of HTTP Status Codes
+  * [ ] Improve error messages
+* [ ] Improve Documentation
+  * [ ] In-Code Documentation
+  * [ ] Examples
+* [ ] Increase Test Coverage
