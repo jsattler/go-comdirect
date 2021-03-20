@@ -3,14 +3,17 @@
 `comdirect-golang` is a client library to interact with
 the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html).
 
-> The library is unstable at the moment and will change frequently until version 1.0.0 is released.
+> **Additional Notes**
+> * The library is currently unstable and will change frequently until version 1.0.0 is released
+> * Please read the comdirect API documentation prior to using this software
+> * Use of this software is at your own risk
 
 Install
 ---
-To use the client within your application simply run
+Use `go get` to install the latest version of this library:
 
 ```bash
-$ go get github.com/j-sattler/comdirect-golang
+$ go get -u github.com/j-sattler/comdirect-golang
 ```
 
 Examples
