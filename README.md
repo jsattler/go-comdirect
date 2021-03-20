@@ -59,7 +59,7 @@ Roadmap / To-Do
 * [ ] **Account**
   * [x] All Balances
   * [x] Balance by Account ID
-  * [ ] Transactions
+  * [x] Transactions
 * [ ] **Depot**
 * [ ] Instrument
 * [ ] **Order**
