@@ -99,3 +99,5 @@ Roadmap / To-Do
   * [ ] In-Code Documentation
   * [ ] Examples
 * [ ] Increase Test Coverage
+* [ ] Overall Cleaning
+  * [ ] Provide an interface to the Authentictor
