@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/j-sattler/comdirect-golang/internal/mediatype"
+	"github.com/jsattler/comdirect-golang/internal/mediatype"
 	"io/ioutil"
 	"net/http"
 	"net/url"
