@@ -13,7 +13,7 @@ Install
 Use `go get` to install the latest version of this library:
 
 ```bash
-$ go get -u github.com/j-sattler/comdirect-golang
+$ go get -u github.com/jsattler/comdirect-golang
 ```
 
 Examples
