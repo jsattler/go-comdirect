@@ -8,12 +8,19 @@ import (
 
 func TestClient_AccountBalances(t *testing.T) {
 	client := getClientFromEnv()
-
-	_, err := client.Balances()
-
+	auth, err := client.authenticator.Authenticate()
 	if err != nil {
-		t.Errorf("failed to request account balances %s", err)
+		t.Errorf("failed to authenticate: %s", err)
 	}
+
+	fmt.Printf("%+v\n", auth)
+	client.authentication = *auth
+	balances, err := client.Balances()
+	if err != nil {
+		t.Errorf("failed to exchange account balances %s", err)
+	}
+
+	fmt.Printf("%+v\n", balances)
 }
 
 func TestClient_Balance(t *testing.T) {
@@ -22,7 +29,7 @@ func TestClient_Balance(t *testing.T) {
 	_, err := client.Balance(accountId)
 
 	if err != nil {
-		t.Errorf("failed to request account balance %s", err)
+		t.Errorf("failed to exchange account balance %s", err)
 		return
 	}
 }
@@ -33,7 +40,7 @@ func TestClient_Transactions(t *testing.T) {
 	transactions, err := client.Transactions(accountId)
 
 	if err != nil {
-		t.Errorf("failed to request account balance %s", err)
+		t.Errorf("failed to exchange account balance %s", err)
 		return
 	}
 
