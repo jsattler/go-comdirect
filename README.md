@@ -79,7 +79,7 @@ Roadmap / To-Do
     * [ ] P_TAN_APP
 * [ ] Refresh Token Flow
 * [ ] Revoke Token
-* [ ] **Account**
+* [x] **Account**
     * [x] All Balances
     * [x] Balance by Account ID
     * [x] Transactions
