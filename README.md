@@ -73,10 +73,10 @@ Roadmap / To-Do
 > Bold items have priority
 
 **Functional**
-* [ ] **Auth**
+* [x] **Auth**
     * [x] P_TAN_PUSH
-    * [ ] P_TAN_PHOTO
-    * [ ] P_TAN_APP
+    * [ ] P_TAN_PHOTO (currently out of scope, since the package is not intended for use in front end apps)
+    * [ ] P_TAN_APP (currently out of scope, since I have no chance to test this)
 * [x] Refresh Token Flow
 * [x] Revoke Token
 * [x] **Account**
@@ -87,17 +87,5 @@ Roadmap / To-Do
 * [ ] **Instrument**
 * [ ] **Order**
 * [ ] Quote
-* [ ] Documents
+* [ ] **Documents**
 * [ ] Reports
-
-**Non-Functional**
-
-* [ ] Proper Error Handling
-  * [ ] Check of HTTP Status Codes
-  * [ ] Improve error messages
-* [ ] Improve Documentation
-  * [ ] In-Code Documentation
-  * [ ] Examples
-* [ ] Increase Test Coverage
-* [ ] Overall Cleaning
-  * [ ] Provide an interface to the Authentictor
