@@ -8,19 +8,29 @@ import (
 
 func TestClient_AccountBalances(t *testing.T) {
 	client := getClientFromEnv()
-	auth, err := client.authenticator.Authenticate()
+	auth, err := client.Authenticate()
 	if err != nil {
 		t.Errorf("failed to authenticate: %s", err)
 	}
-
 	fmt.Printf("%+v\n", auth)
-	client.authentication = *auth
 	balances, err := client.Balances()
 	if err != nil {
 		t.Errorf("failed to exchange account balances %s", err)
 	}
 
 	fmt.Printf("%+v\n", balances)
+
+	auth, err = client.Refresh()
+	if err != nil {
+		return
+	}
+	fmt.Printf("%+v\n", auth)
+
+	err = client.Revoke()
+	if err != nil {
+		return
+	}
+	fmt.Println("successfully revoked access token")
 }
 
 func TestClient_Balance(t *testing.T) {

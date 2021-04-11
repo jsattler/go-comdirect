@@ -129,7 +129,8 @@ func (a *Authenticator) Authenticate() (*Authentication, error) {
 		return nil, err
 	}
 
-	time.Sleep(10 * time.Second)
+	// https://community.comdirect.de/t5/Website-Apps/REST-API-Schritt-2-4-Aktivierung-einer-Session-TAN/td-p/153737/page/2
+	time.Sleep(10 * time.Second) // TODO: Workaround until we can fetch the authentication status
 
 	state, err = a.activateSessionTan(state)
 	if err != nil {
@@ -150,11 +151,50 @@ func (a *Authenticator) Authenticate() (*Authentication, error) {
 }
 
 func (a *Authenticator) Refresh(auth Authentication) (Authentication, error) {
+	encoded := url.Values{
+		"grant_type":    {RefreshTokenGrantType},
+		"client_id":     {a.authOptions.ClientId},
+		"client_secret": {a.authOptions.ClientSecret},
+		"refresh_token": {auth.accessToken.RefreshToken},
+	}.Encode()
 
-	return Authentication{}, nil
+	body := ioutil.NopCloser(strings.NewReader(encoded))
+	req := &http.Request{
+		Method: http.MethodPost,
+		URL:    &url.URL{Host: Host, Scheme: HttpsScheme, Path: OAuthTokenPath},
+		Header: http.Header{
+			http.CanonicalHeaderKey(AcceptHeaderKey):      {mediatype.ApplicationJson},
+			http.CanonicalHeaderKey(ContentTypeHeaderKey): {mediatype.XWWWFormUrlEncoded},
+		},
+		Body: body,
+	}
+
+	var accessToken AccessToken
+	_, err := a.http.exchange(req, &accessToken)
+
+	auth.accessToken = &accessToken
+	auth.time = time.Now()
+	return auth, err
 }
 
 func (a *Authenticator) Revoke(auth Authentication) error {
+
+	req := &http.Request{
+		Method: http.MethodDelete,
+		URL:    &url.URL{Host: Host, Scheme: HttpsScheme, Path: OAuthTokenPath},
+		Header: http.Header{
+			http.CanonicalHeaderKey(AcceptHeaderKey):        {mediatype.ApplicationJson},
+			http.CanonicalHeaderKey(ContentTypeHeaderKey):   {mediatype.XWWWFormUrlEncoded},
+			http.CanonicalHeaderKey(AuthorizationHeaderKey): {BearerPrefix + auth.accessToken.AccessToken},
+		},
+	}
+	response, err := a.http.Do(req)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode != 204 {
+		return errors.New("could not revoke access token")
+	}
 	return nil
 }
 

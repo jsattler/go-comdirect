@@ -77,8 +77,8 @@ Roadmap / To-Do
     * [x] P_TAN_PUSH
     * [ ] P_TAN_PHOTO
     * [ ] P_TAN_APP
-* [ ] Refresh Token Flow
-* [ ] Revoke Token
+* [x] Refresh Token Flow
+* [x] Revoke Token
 * [x] **Account**
     * [x] All Balances
     * [x] Balance by Account ID

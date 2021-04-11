@@ -1,6 +1,7 @@
 package comdirect
 
 import (
+	"errors"
 	"net/http"
 	"time"
 )
@@ -17,8 +18,9 @@ const (
 	ApiPath        = "/api"
 	OAuthTokenPath = "/oauth/token"
 
-	PasswordGrantType  = "password"
-	SecondaryGrantType = "cd_secondary"
+	PasswordGrantType     = "password"
+	SecondaryGrantType    = "cd_secondary"
+	RefreshTokenGrantType = "refresh_token"
 
 	DefaultHttpTimeout = time.Second * 30
 	HttpsScheme        = "https"
@@ -28,76 +30,12 @@ const (
 type Client struct {
 	authenticator  *Authenticator
 	http           *HttpClient
-	authentication Authentication
-}
-
-type AccountBalance struct {
-	Account                Account     `json:"account"`
-	AccountId              string      `json:"accountId"`
-	Balance                AmountValue `json:"balance"`
-	BalanceEUR             AmountValue `json:"balanceEUR"`
-	AvailableCashAmount    AmountValue `json:"availableCashAmount"`
-	AvailableCashAmountEUR AmountValue `json:"availableCashAmountEUR"`
-}
-
-type Account struct {
-	AccountID        string      `json:"accountId"`
-	AccountDisplayID string      `json:"accountDisplayId"`
-	Currency         string      `json:"currency"`
-	ClientID         string      `json:"clientId"`
-	AccountType      AccountType `json:"accountType"`
-	Iban             string      `json:"iban"`
-	CreditLimit      AmountValue `json:"creditLimit"`
-}
-
-type AccountType struct {
-	Key  string `json:"key"`
-	Text string `json:"text"`
+	authentication *Authentication
 }
 
 type AmountValue struct {
 	Value string `json:"value"`
 	Unit  string `json:"unit"`
-}
-
-type AccountBalances struct {
-	Values []AccountBalance `json:"values"`
-}
-
-type TransactionResponse struct {
-	Values []Transaction `json:"values"`
-}
-
-type Transaction struct {
-	Reference             string          `json:"reference"`
-	BookingStatus         string          `json:"bookingStatus"`
-	BookingDate           string          `json:"bookingDate"`
-	Amount                AmountValue     `json:"amount"`
-	Remitter              Remitter        `json:"remitter"`
-	Deptor                string          `json:"deptor"`
-	Creditor              Creditor        `json:"creditor"`
-	ValutaDate            string          `json:"valutaDate"`
-	DirectDebitCreditorID string          `json:"directDebitCreditorId"`
-	DirectDebitMandateID  string          `json:"directDebitMandateId"`
-	EndToEndReference     string          `json:"endToEndReference"`
-	NewTransaction        bool            `json:"newTransaction"`
-	RemittanceInfo        string          `json:"remittanceInfo"`
-	TransactionType       TransactionType `json:"transactionType"`
-}
-
-type TransactionType struct {
-	Key  string `json:"key"`
-	Text string `json:"text"`
-}
-
-type Remitter struct {
-	HolderName string `json:"holderName"`
-}
-
-type Creditor struct {
-	HolderName string `json:"holderName"`
-	Iban       string `json:"iban"`
-	Bic        string `json:"bic"`
 }
 
 func NewWithAuthenticator(authenticator *Authenticator) *Client {
@@ -109,4 +47,43 @@ func NewWithAuthenticator(authenticator *Authenticator) *Client {
 
 func NewWithAuthOptions(options *AuthOptions) *Client {
 	return NewWithAuthenticator(options.NewAuthenticator())
+}
+
+// Authenticate uses the underlying Authenticator to authenticate against the comdirect REST API.
+func (c *Client) Authenticate() (*Authentication, error) {
+	if c.authenticator == nil {
+		return nil, errors.New("authenticator cannot be nil")
+	}
+	authentication, err := c.authenticator.Authenticate()
+	if err != nil {
+		return nil, err
+	}
+	c.authentication = authentication
+	return c.authentication, nil
+}
+
+// Revoke uses the underlying Authenticator to revoke an access token.
+func (c *Client) Revoke() error {
+	if c.authenticator == nil {
+		return errors.New("authenticator cannot be nil")
+	}
+	err := c.authenticator.Revoke(*c.authentication)
+	if err != nil {
+		return err
+	}
+	c.authentication = nil
+	return nil
+}
+
+// Refresh uses the underlying Authenticator to refresh an access token.
+func (c *Client) Refresh() (*Authentication, error) {
+	if c.authenticator == nil {
+		return nil, errors.New("authenticator cannot be nil")
+	}
+	authentication, err := c.authenticator.Refresh(*c.authentication)
+	if err != nil {
+		return nil, err
+	}
+	c.authentication = &authentication
+	return c.authentication, nil
 }
