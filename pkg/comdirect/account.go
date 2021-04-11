@@ -72,7 +72,7 @@ type Creditor struct {
 }
 
 func (c *Client) Balances() ([]AccountBalance, error) {
-	if c.authentication.accessToken == nil || c.authentication.IsExpired() {
+	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 	info, err := requestInfoJSON(c.authentication.sessionID)
@@ -97,7 +97,7 @@ func (c *Client) Balances() ([]AccountBalance, error) {
 }
 
 func (c *Client) Balance(accountId string) (*AccountBalance, error) {
-	if c.authentication.accessToken == nil || c.authentication.IsExpired() {
+	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 
@@ -123,7 +123,7 @@ func (c *Client) Balance(accountId string) (*AccountBalance, error) {
 }
 
 func (c *Client) Transactions(accountId string) ([]Transaction, error) {
-	if c.authentication.accessToken == nil || c.authentication.IsExpired() {
+	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 	info, err := requestInfoJSON(c.authentication.sessionID)

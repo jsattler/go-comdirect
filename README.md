@@ -10,33 +10,32 @@ the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html)
 
 Documentation
 ---
-You can find more detailed documentation
-* on the [website](https://jsattler.github.io/comdirect-golang/#/)
+You can find detailed documentation
+* on this [website](https://jsattler.github.io/comdirect-golang/#/)
 * in the [`docs/`](docs/getting-started.md) folder
-* or in the [`examples/`](examples) older
+* in the [`examples/`](examples) folder
+* or in the tests [`pkg/comdirect`](pkg/comdirect)
 
 Roadmap / To-Do
 ---
-> Bold items have priority
 
-**Functional**
-* [x] **Auth**
-    * [x] P_TAN_PUSH
-    * [ ] P_TAN_PHOTO (currently out of scope, since the package is not intended for use in front end apps)
-    * [ ] P_TAN_APP (currently out of scope, since I have no chance to test this)
-* [x] Refresh Token Flow
-* [x] Revoke Token
-* [x] **Account**
-    * [x] All Balances
-    * [x] Balance by Account ID
-    * [x] Transactions
-* [ ] **Depot**
-    * [ ] All Depots
-    * [ ] Positions by Depot ID
-    * [ ] Position by Depot ID and Position ID
-    * [ ] Transactions by Depot ID
-* [ ] **Instrument**
-* [ ] **Order**
+* [x] Auth
+  * [x] P_TAN_PUSH
+  * [ ] P_TAN_PHOTO (currently out of scope, since the package is not intended for use in front end apps)
+  * [ ] P_TAN_APP (currently out of scope, since I have no chance to test this)
+  * [x] Refresh Token
+  * [x] Revoke Token
+* [x] Account
+  * [x] All Balances
+  * [x] Balance by Account ID
+  * [x] Transactions
+* [x] Depot
+  * [x] All Depots
+  * [x] Positions by Depot ID
+  * [x] Position by Depot ID and Position ID
+  * [x] Transactions by Depot ID
+* [ ] Instrument
+* [ ] Order
 * [ ] Quote
-* [ ] **Documents**
+* [ ] Documents
 * [ ] Reports

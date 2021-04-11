@@ -35,7 +35,7 @@ type authState struct {
 
 // Authentication represents an authentication object for the comdirect REST API.
 type Authentication struct {
-	accessToken *AccessToken
+	accessToken AccessToken
 	sessionID   string
 	time        time.Time
 }
@@ -144,7 +144,7 @@ func (a *Authenticator) Authenticate() (*Authentication, error) {
 	}
 
 	return &Authentication{
-		accessToken: &state.accessToken,
+		accessToken: state.accessToken,
 		sessionID:   state.requestInfo.ClientRequestID.SessionID,
 		time:        time.Now(),
 	}, err
@@ -172,7 +172,7 @@ func (a *Authenticator) Refresh(auth Authentication) (Authentication, error) {
 	var accessToken AccessToken
 	_, err := a.http.exchange(req, &accessToken)
 
-	auth.accessToken = &accessToken
+	auth.accessToken = accessToken
 	auth.time = time.Now()
 	return auth, err
 }
