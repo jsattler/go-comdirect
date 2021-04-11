@@ -10,7 +10,10 @@ the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html)
 
 Documentation
 ---
-
+You can find more detailed documentation
+* on the [website](https://jsattler.github.io/comdirect-golang/#/)
+* in the [`docs/`](docs/getting-started.md) folder
+* or in the [`examples/`](examples) older
 
 Roadmap / To-Do
 ---
