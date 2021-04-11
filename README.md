@@ -8,65 +8,9 @@ the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html)
 > * Please read the comdirect API documentation prior to using this software
 > * Use of this software is at your own risk
 
-Install
+Documentation
 ---
-Use `go get` to install the latest version of this library:
 
-```bash
-$ go get -u github.com/jsattler/comdirect-golang
-```
-
-Examples
----
-In the following examples we are reading the comdirect credentials from predefined environment variables.
-
-### Authentication
-
-**Creating a new Authenticator from AuthOptions**:
-
-```go
-// omitting error validation, imports and packages
-
-options := &comdirect.AuthOptions{
-    Username:     os.Getenv("COMDIRECT_USERNAME"),
-    Password:     os.Getenv("COMDIRECT_PASSWORD"),
-    ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
-    ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
-}
-authenticator := options.NewAuthenticator()
-```
-
-**Creating a new Authenticator with AuthOptions**:
-
-```go
-// omitting error validation, imports and packages
-
-options := &comdirect.AuthOptions{
-    Username:     os.Getenv("COMDIRECT_USERNAME"),
-    Password:     os.Getenv("COMDIRECT_PASSWORD"),
-    ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
-    ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
-}
-
-authenticator := comdirect.NewAuthenticator(options)
-```
-
-### Client Creation
-
-**Create a new Client from AuthOptions**
-
-```go
-// omitting error validation, imports and packages
-
-options := &comdirect.AuthOptions{
-    Username:     os.Getenv("COMDIRECT_USERNAME"),
-    Password:     os.Getenv("COMDIRECT_PASSWORD"),
-    ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
-    ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
-}
-
-client := comdirect.NewWithAuthOptions(options)
-```
 
 Roadmap / To-Do
 ---
@@ -84,6 +28,10 @@ Roadmap / To-Do
     * [x] Balance by Account ID
     * [x] Transactions
 * [ ] **Depot**
+    * [ ] All Depots
+    * [ ] Positions by Depot ID
+    * [ ] Position by Depot ID and Position ID
+    * [ ] Transactions by Depot ID
 * [ ] **Instrument**
 * [ ] **Order**
 * [ ] Quote
