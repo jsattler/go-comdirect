@@ -51,7 +51,7 @@ func (c *Client) Instrument(instrument string) ([]Instrument, error) {
 		},
 	}
 
-	depots := &Instruments{}
-	_, err = c.http.exchange(req, depots)
-	return depots.Values, err
+	instruments := &Instruments{}
+	_, err = c.http.exchange(req, instruments)
+	return instruments.Values, err
 }

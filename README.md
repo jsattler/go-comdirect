@@ -43,7 +43,10 @@ Roadmap / To-Do
   * [ ] Order Pre-Validation
   * [ ] Order Validation
   * [ ] Generate Order Cost Indication Ex-Ante
-  * [ ] 
 * [ ] Quote
-* [ ] Documents
-* [ ] Reports
+* [x] Documents
+  * [x] Documents (Postbox)
+  * [x] Document by ID
+  * [ ] Pre-Document (currently out of scope, since I have no document to test this with)
+* [x] Reports
+  * [x] Balances of all comdirect products
