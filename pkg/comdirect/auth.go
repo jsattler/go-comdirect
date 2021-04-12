@@ -22,7 +22,7 @@ import (
 // the authentication flow was successful. Authenticator is using golang's default http.Client.
 type Authenticator struct {
 	authOptions *AuthOptions
-	http        *HttpClient
+	http        *HTTPClient
 }
 
 // authState encapsulates the state that is passed through the comdirect authentication flow.
@@ -98,7 +98,7 @@ type link struct {
 func (a AuthOptions) NewAuthenticator() *Authenticator {
 	return &Authenticator{
 		authOptions: &a,
-		http:        &HttpClient{http.Client{Timeout: DefaultHttpTimeout}},
+		http:        &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}},
 	}
 }
 
@@ -107,7 +107,7 @@ func (a AuthOptions) NewAuthenticator() *Authenticator {
 func NewAuthenticator(options *AuthOptions) *Authenticator {
 	return &Authenticator{
 		authOptions: options,
-		http:        &HttpClient{http.Client{Timeout: DefaultHttpTimeout}},
+		http:        &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}},
 	}
 }
 

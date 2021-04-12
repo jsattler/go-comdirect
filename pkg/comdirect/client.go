@@ -29,7 +29,7 @@ const (
 
 type Client struct {
 	authenticator  *Authenticator
-	http           *HttpClient
+	http           *HTTPClient
 	authentication *Authentication
 }
 
@@ -41,7 +41,7 @@ type AmountValue struct {
 func NewWithAuthenticator(authenticator *Authenticator) *Client {
 	return &Client{
 		authenticator: authenticator,
-		http:          &HttpClient{http.Client{Timeout: DefaultHttpTimeout}},
+		http:          &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}},
 	}
 }
 
