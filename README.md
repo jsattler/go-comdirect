@@ -13,6 +13,13 @@ the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html)
 > * Please read the comdirect API documentation prior to using this software
 > * Use of this software is at your own risk
 
+Install
+---
+Use `go get` to install the latest version of this library:
+```bash
+$ go get -u github.com/jsattler/comdirect-golang
+```
+
 Documentation
 ---
 You can find detailed documentation
