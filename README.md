@@ -34,8 +34,16 @@ Roadmap / To-Do
   * [x] Positions by Depot ID
   * [x] Position by Depot ID and Position ID
   * [x] Transactions by Depot ID
-* [ ] Instrument
+* [x] Instrument
+  * [x] Instrument by Instrument ID
 * [ ] Order
+  * [ ] Dimensions
+  * [ ] Orders by Depot ID
+  * [ ] Order by Order ID
+  * [ ] Order Pre-Validation
+  * [ ] Order Validation
+  * [ ] Generate Order Cost Indication Ex-Ante
+  * [ ] 
 * [ ] Quote
 * [ ] Documents
 * [ ] Reports

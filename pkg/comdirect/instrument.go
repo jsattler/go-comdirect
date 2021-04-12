@@ -1,5 +1,11 @@
 package comdirect
 
+import (
+	"errors"
+	"fmt"
+	"net/http"
+)
+
 type Instrument struct {
 	InstrumentID string     `json:"instrumentId"`
 	WKN          string     `json:"wkn"`
@@ -10,6 +16,10 @@ type Instrument struct {
 	StaticData   StaticData `json:"staticData"`
 }
 
+type Instruments struct {
+	Values []Instrument `json:"values"`
+}
+
 type StaticData struct {
 	Notation               string `json:"notation"`
 	Currency               string `json:"currency"`
@@ -18,4 +28,30 @@ type StaticData struct {
 	KidAvailable           bool   `json:"kidAvailable"`
 	ShippingWaiverRequired bool   `json:"shippingWaiverRequired"`
 	FundRedemptionLimited  bool   `json:"fundRedemptionLimited"`
+}
+
+// Instrument retrieves instrument information by WKN, ISIN or mnemonic
+func (c *Client) Instrument(instrument string) ([]Instrument, error) {
+	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
+		return nil, errors.New("authentication is expired or not initialized")
+	}
+	info, err := requestInfoJSON(c.authentication.sessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	req := &http.Request{
+		Method: http.MethodGet,
+		URL:    apiURL(fmt.Sprintf("/brokerage/v1/instruments/%s", instrument)),
+		Header: http.Header{
+			AcceptHeaderKey:          {"application/json"},
+			ContentTypeHeaderKey:     {"application/json"},
+			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
+			HttpRequestInfoHeaderKey: {string(info)},
+		},
+	}
+
+	depots := &Instruments{}
+	_, err = c.http.exchange(req, depots)
+	return depots.Values, err
 }
