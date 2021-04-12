@@ -1,5 +1,10 @@
+
 `comdirect-golang`
 ===
+![version](https://img.shields.io/github/v/release/jsattler/comdirect-golang?include_prereleases)
+[![Apache License v2](https://img.shields.io/github/license/jsattler/comdirect-golang)](http://www.apache.org/licenses/)
+[![GitHub go.mod Go version of a Go module](https://img.shields.io/github/go-mod/go-version/jsattler/comdirect-golang)](https://github.com/jsattler/comdirect-golang)
+
 `comdirect-golang` is a client library to interact with
 the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html).
 
