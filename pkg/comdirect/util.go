@@ -13,7 +13,7 @@ import (
 // TODO: Think about where to put the stuff in here.
 // TODO: Currently this is a pool for everything that does not fit somewhere else
 
-type HttpClient struct {
+type HTTPClient struct {
 	http.Client
 }
 
@@ -41,7 +41,7 @@ func generateRequestID() string {
 	return id[0:9]
 }
 
-func (h *HttpClient) exchange(request *http.Request, target interface{}) (*http.Response, error) {
+func (h *HTTPClient) exchange(request *http.Request, target interface{}) (*http.Response, error) {
 	res, err := h.Do(request)
 	if err != nil {
 		return res, err
