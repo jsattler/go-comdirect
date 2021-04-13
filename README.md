@@ -26,7 +26,7 @@ You can find detailed documentation
 * on this [website](https://jsattler.github.io/comdirect-golang/#/)
 * in the [`docs/`](docs/getting-started.md) folder
 * in the [`examples/`](examples) folder
-* or in the tests [`pkg/comdirect`](pkg/comdirect)
+* or in the tests of [`pkg/comdirect`](pkg/comdirect)
 
 Roadmap / To-Do
 ---
