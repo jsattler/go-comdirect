@@ -13,4 +13,6 @@ You can use the package to implement various use cases for example:
 
 There are more use cases that you can implement using the package.
 
-## Examples
+## Useful Links
+* [**comdirect REST API**](https://www.comdirect.de/cms/kontakt-zugaenge-api.html)
+* [**Introduction Video REST API (German)**](https://www.youtube.com/watch?v=HNTeqKTCKTs)
