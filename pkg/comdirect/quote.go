@@ -12,10 +12,10 @@ func (c *Client) CreateQuoteRequest() {
 	// TODO
 }
 
-func (c *Client) ValidateOrder() {
+func (c *Client) ValidateQuoteOrder() {
 
 }
 
-func (c *Client) CreateOrder() {
+func (c *Client) CreateQuoteOrder() {
 	// TODO
 }
