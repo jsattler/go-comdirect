@@ -4,7 +4,7 @@
 > Founded by the Commerzbank in 1994, the company went public in 2000. The Commerzbank integrated the company on November 1, 2020.
 
 ## What is `comdirect-golang`?
-`comdirect-golang` is a client written in golang to interact with the comdirect REST API.
+`comdirect-golang` is a client library written in golang to interact with the comdirect REST API.
 You can use the package to implement various use cases for example:
 * A CLI tool to interact with comdirect
 * A prometheus exporter to monitor your account balance or depots
@@ -15,4 +15,4 @@ There are more use cases that you can implement using the package.
 
 ## Useful Links
 * [**comdirect REST API**](https://www.comdirect.de/cms/kontakt-zugaenge-api.html)
-* [**Introduction Video REST API (German)**](https://www.youtube.com/watch?v=HNTeqKTCKTs)
+* [**Introduction Video comdirect REST API (German)**](https://www.youtube.com/watch?v=HNTeqKTCKTs)
