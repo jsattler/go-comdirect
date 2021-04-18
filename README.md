@@ -20,6 +20,21 @@ Use `go get` to install the latest version of this library:
 $ go get -u github.com/jsattler/comdirect-golang
 ```
 
+Quick Start
+---
+```go
+// omitting error validation, imports and packages
+
+options := &comdirect.AuthOptions{
+    Username:     os.Getenv("COMDIRECT_USERNAME"),
+    Password:     os.Getenv("COMDIRECT_PASSWORD"),
+    ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
+    ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
+}
+
+client := comdirect.NewWithAuthOptions(options)
+```
+
 Documentation
 ---
 You can find detailed documentation
@@ -49,7 +64,7 @@ Roadmap / To-Do
 * [x] Instrument
   * [x] Instrument by Instrument ID
 * [ ] Order
-  * [ ] Dimensions
+  * [x] Dimensions
   * [ ] Orders by Depot ID
   * [ ] Order by Order ID
   * [ ] Order Pre-Validation

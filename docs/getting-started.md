@@ -40,9 +40,16 @@ options := &comdirect.AuthOptions{
 authenticator := comdirect.NewAuthenticator(options)
 ```
 
-### Client Creation
+**Authenticate using the `Authenticator`**
 
-**Create a new Client from AuthOptions**
+```go
+authentication, err := authenticator.Authenticate()
+```
+The `Authentication` struct holds all relevant information for subsequent requests to the API.
+
+### First Steps with comdirect.Client
+
+**Create a new `Client` from `AuthOptions`**
 
 ```go
 // omitting error validation, imports and packages
@@ -55,4 +62,20 @@ options := &comdirect.AuthOptions{
 }
 
 client := comdirect.NewWithAuthOptions(options)
+```
+
+**Create a new `Client` from an `Authenticator`**
+```go
+// omitting error validation, imports and packages
+
+options := &comdirect.AuthOptions{
+    Username:     os.Getenv("COMDIRECT_USERNAME"),
+    Password:     os.Getenv("COMDIRECT_PASSWORD"),
+    ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
+    ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
+}
+
+authenticator := options.NewAuthenticator()
+
+client := comdirect.NewWithAuthenticator(authenticator)
 ```
