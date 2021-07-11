@@ -93,6 +93,11 @@ type link struct {
 	Method string `json:"method"`
 }
 
+type authStatus struct {
+	AuthenticationId string `json:"authenticationId"`
+	Status           string `json:"status"`
+}
+
 // NewAuthenticator creates a new Authenticator from AuthOptions
 // with an http.Client configured with a timeout of DefaultHttpTimeout.
 func (a AuthOptions) NewAuthenticator() *Authenticator {
@@ -129,8 +134,10 @@ func (a *Authenticator) Authenticate() (*Authentication, error) {
 		return nil, err
 	}
 
-	// https://community.comdirect.de/t5/Website-Apps/REST-API-Schritt-2-4-Aktivierung-einer-Session-TAN/td-p/153737/page/2
-	time.Sleep(10 * time.Second) // TODO: Workaround until we can fetch the authentication status
+	state, err = a.checkAuthenticationStatus(state)
+	if err != nil {
+		return nil, err
+	}
 
 	state, err = a.activateSessionTan(state)
 	if err != nil {
@@ -383,4 +390,42 @@ func (a *Authenticator) secondaryFlow(state authState) (authState, error) {
 	}
 
 	return state, res.Body.Close()
+}
+
+func (a *Authenticator) checkAuthenticationStatus(state authState) (authState, error) {
+	state.requestInfo.ClientRequestID.RequestID = generateRequestID()
+	requestInfoJson, err := json.Marshal(state.requestInfo)
+	if err != nil {
+		return state, err
+	}
+
+	req := &http.Request{
+		Method: http.MethodGet,
+		URL:    comdirectURL(state.onceAuthInfo.Link.Href),
+		Header: http.Header{
+			AuthorizationHeaderKey:   {BearerPrefix + state.accessToken.AccessToken},
+			AcceptHeaderKey:          {mediatype.ApplicationJson},
+			ContentTypeHeaderKey:     {mediatype.ApplicationJson},
+			HttpRequestInfoHeaderKey: {string(requestInfoJson)},
+		},
+	}
+
+	for { // TODO: implement max retry or something to break from loop
+
+		response, err := a.http.Do(req)
+		if err != nil {
+			return state, err
+		}
+		var authStatus authStatus
+		if err = json.NewDecoder(response.Body).Decode(&authStatus); err != nil {
+			return state, err
+		}
+
+		if authStatus.Status == "AUTHENTICATED" {
+			break
+		}
+		time.Sleep(time.Second * 5)
+	}
+
+	return state, nil
 }
