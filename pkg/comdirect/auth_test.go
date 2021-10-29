@@ -1,8 +1,10 @@
 package comdirect
 
 import (
+	"context"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestNewAuthenticator(t *testing.T) {
@@ -33,7 +35,9 @@ func TestNewAuthenticator2(t *testing.T) {
 
 func TestAuthenticator_Authenticate(t *testing.T) {
 	authenticator := AuthenticatorFromEnv()
-	_, err := authenticator.Authenticate()
+	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	defer cancel()
+	_, err := authenticator.Authenticate(ctx)
 	if err != nil {
 		t.Errorf("authentication failed %s", err)
 	}

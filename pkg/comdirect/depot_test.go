@@ -14,7 +14,10 @@ func TestClient_Depots(t *testing.T) {
 		ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
 	}
 	client := NewWithAuthOptions(options)
-	if _, err := client.Authenticate(); err != nil {
+
+	ctx, cancel := contextTimeout10Seconds()
+	defer cancel()
+	if _, err := client.Authenticate(ctx); err != nil {
 		t.Errorf("authentication failed: %s", err)
 		return
 	}
@@ -35,7 +38,9 @@ func TestClient_DepotPositions(t *testing.T) {
 		ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
 	}
 	client := NewWithAuthOptions(options)
-	if _, err := client.Authenticate(); err != nil {
+	ctx, cancel := contextTimeout10Seconds()
+	defer cancel()
+	if _, err := client.Authenticate(ctx); err != nil {
 		t.Errorf("authentication failed: %s", err)
 		return
 	}
@@ -56,7 +61,10 @@ func TestClient_DepotPosition(t *testing.T) {
 		ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
 	}
 	client := NewWithAuthOptions(options)
-	if _, err := client.Authenticate(); err != nil {
+
+	ctx, cancel := contextTimeout10Seconds()
+	defer cancel()
+	if _, err := client.Authenticate(ctx); err != nil {
 		t.Errorf("authentication failed: %s", err)
 		return
 	}
@@ -77,7 +85,10 @@ func TestClient_DepotTransactions(t *testing.T) {
 		ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
 	}
 	client := NewWithAuthOptions(options)
-	if _, err := client.Authenticate(); err != nil {
+
+	ctx, cancel := contextTimeout10Seconds()
+	defer cancel()
+	if _, err := client.Authenticate(ctx); err != nil {
 		t.Errorf("authentication failed: %s", err)
 		return
 	}

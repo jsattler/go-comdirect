@@ -40,7 +40,6 @@ Documentation
 You can find detailed documentation
 * on this [website](https://jsattler.github.io/comdirect-golang/#/)
 * in the [`docs/`](docs/getting-started.md) folder
-* in the [`examples/`](examples) folder
 * or in the tests of [`pkg/comdirect`](pkg/comdirect)
 
 Roadmap / To-Do
@@ -71,6 +70,9 @@ Roadmap / To-Do
   * [ ] Order Validation
   * [ ] Generate Order Cost Indication Ex-Ante
 * [ ] Quote
+  * [ ] Quote-Request Validation and TAN Challenge Request
+  * [ ] Quote-Request Validation and TAN validation
+  * [ ] Create Quote-Request Request
 * [x] Documents
   * [x] Documents (Postbox)
   * [x] Document by ID

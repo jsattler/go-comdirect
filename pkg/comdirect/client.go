@@ -1,6 +1,7 @@
 package comdirect
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"time"
@@ -50,11 +51,11 @@ func NewWithAuthOptions(options *AuthOptions) *Client {
 }
 
 // Authenticate uses the underlying Authenticator to authenticate against the comdirect REST API.
-func (c *Client) Authenticate() (*Authentication, error) {
+func (c *Client) Authenticate(ctx context.Context) (*Authentication, error) {
 	if c.authenticator == nil {
 		return nil, errors.New("authenticator cannot be nil")
 	}
-	authentication, err := c.authenticator.Authenticate()
+	authentication, err := c.authenticator.Authenticate(ctx)
 	if err != nil {
 		return nil, err
 	}

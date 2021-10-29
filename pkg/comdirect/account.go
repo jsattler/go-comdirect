@@ -1,6 +1,7 @@
 package comdirect
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -71,7 +72,7 @@ type Creditor struct {
 	Bic        string `json:"bic"`
 }
 
-func (c *Client) Balances() ([]AccountBalance, error) {
+func (c *Client) Balances(ctx context.Context) ([]AccountBalance, error) {
 	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -90,13 +91,14 @@ func (c *Client) Balances() ([]AccountBalance, error) {
 			HttpRequestInfoHeaderKey: {string(info)},
 		},
 	}
+	req.WithContext(ctx)
 
 	accountBalances := &AccountBalances{}
 	_, err = c.http.exchange(req, accountBalances)
 	return accountBalances.Values, err
 }
 
-func (c *Client) Balance(accountId string) (*AccountBalance, error) {
+func (c *Client) Balance(ctx context.Context, accountId string) (*AccountBalance, error) {
 	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -122,7 +124,7 @@ func (c *Client) Balance(accountId string) (*AccountBalance, error) {
 	return accountBalance, err
 }
 
-func (c *Client) Transactions(accountId string) ([]Transaction, error) {
+func (c *Client) Transactions(ctx context.Context, accountId string) ([]Transaction, error) {
 	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}

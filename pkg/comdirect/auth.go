@@ -1,6 +1,7 @@
 package comdirect
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -25,8 +26,8 @@ type Authenticator struct {
 	http        *HTTPClient
 }
 
-// authState encapsulates the state that is passed through the comdirect authentication flow.
-type authState struct {
+// authContext encapsulates the state that is passed through the comdirect authentication flow.
+type authContext struct {
 	accessToken  AccessToken
 	requestInfo  requestInfo
 	session      session
@@ -116,43 +117,50 @@ func NewAuthenticator(options *AuthOptions) *Authenticator {
 	}
 }
 
+func NewAuthentication(accessToken AccessToken, sessionID string, time time.Time) Authentication {
+	return Authentication{
+		accessToken: accessToken,
+		sessionID: sessionID,
+		time: time,
+	}
+}
+
 // Authenticate authenticates against the comdirect REST API.
-func (a *Authenticator) Authenticate() (*Authentication, error) {
+func (a *Authenticator) Authenticate(ctx context.Context) (*Authentication, error) {
 
-	state, err := a.passwordGrant(a.authOptions)
+	authCtx, err := a.passwordGrant(ctx, a.authOptions)
 	if err != nil {
 		return nil, err
 	}
 
-	state, err = a.fetchSessionStatus(state)
+	authCtx, err = a.fetchSessionStatus(ctx, authCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	state, err = a.validateSessionTan(state)
+	authCtx, err = a.validateSessionTan(ctx, authCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	state, err = a.checkAuthenticationStatus(state)
+	authCtx, err = a.checkAuthenticationStatus(ctx, authCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	state, err = a.activateSessionTan(state)
+	authCtx, err = a.activateSessionTan(ctx, authCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	// Step 2.5: OAuth2 Comdirect Secondary Flow to extend scopes
-	state, err = a.secondaryFlow(state)
+	authCtx, err = a.secondaryFlow(ctx, authCtx)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Authentication{
-		accessToken: state.accessToken,
-		sessionID:   state.requestInfo.ClientRequestID.SessionID,
+		accessToken: authCtx.accessToken,
+		sessionID:   authCtx.requestInfo.ClientRequestID.SessionID,
 		time:        time.Now(),
 	}, err
 }
@@ -211,7 +219,7 @@ func (a *Authentication) IsExpired() bool {
 }
 
 // Step 2.1
-func (a *Authenticator) passwordGrant(options *AuthOptions) (authState, error) {
+func (a *Authenticator) passwordGrant(ctx context.Context, options *AuthOptions) (authContext, error) {
 
 	urlEncoded := url.Values{
 		"username":      {options.Username},
@@ -231,117 +239,120 @@ func (a *Authenticator) passwordGrant(options *AuthOptions) (authState, error) {
 		},
 		Body: body,
 	}
+	req = req.WithContext(ctx)
 
-	state := authState{
+	authCtx := authContext{
 		accessToken: AccessToken{},
 	}
-	_, err := a.http.exchange(req, &state.accessToken)
+	_, err := a.http.exchange(req, &authCtx.accessToken)
 
-	return state, err
+	return authCtx, err
 }
 
 // Step 2.2
-func (a *Authenticator) fetchSessionStatus(state authState) (authState, error) {
-	state.requestInfo = requestInfo{
+func (a *Authenticator) fetchSessionStatus(ctx context.Context, authCtx authContext) (authContext, error) {
+	authCtx.requestInfo = requestInfo{
 		ClientRequestID: clientRequestID{
 			SessionID: generateSessionID(),
 			RequestID: generateRequestID(),
 		},
 	}
-	requestInfoJson, err := json.Marshal(state.requestInfo)
+	requestInfoJSON, err := json.Marshal(authCtx.requestInfo)
 	if err != nil {
-		return state, err
+		return authCtx, err
 	}
 
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    comdirectURL("/api/session/clients/user/v1/sessions"),
 		Header: http.Header{
-			AuthorizationHeaderKey:   {BearerPrefix + state.accessToken.AccessToken},
+			AuthorizationHeaderKey:   {BearerPrefix + authCtx.accessToken.AccessToken},
 			AcceptHeaderKey:          {mediatype.ApplicationJson},
 			ContentTypeHeaderKey:     {mediatype.ApplicationJson},
-			HttpRequestInfoHeaderKey: {string(requestInfoJson)},
+			HttpRequestInfoHeaderKey: {string(requestInfoJSON)},
 		},
 	}
+	req = req.WithContext(ctx)
 
 	var sessions []session
 	if _, err = a.http.exchange(req, &sessions); err != nil {
-		return state, err
+		return authCtx, err
 	}
 
 	if len(sessions) == 0 {
-		return state, errors.New("length of returned session array is zero; expected at least one")
+		return authCtx, errors.New("length of returned session array is zero; expected at least one")
 	}
 
-	state.session = sessions[0]
+	authCtx.session = sessions[0]
 
-	return state, err
+	return authCtx, err
 }
 
 // Step: 2.3
-func (a *Authenticator) validateSessionTan(state authState) (authState, error) {
-	state.session.SessionTanActive = true
-	state.session.Activated2FA = true
-	jsonSession, err := json.Marshal(state.session)
+func (a *Authenticator) validateSessionTan(ctx context.Context, authCtx authContext) (authContext, error) {
+	authCtx.session.SessionTanActive = true
+	authCtx.session.Activated2FA = true
+	jsonSession, err := json.Marshal(authCtx.session)
 	if err != nil {
-		return state, err
+		return authCtx, err
 	}
 
-	state.requestInfo.ClientRequestID.RequestID = generateRequestID()
-	JSONRequestInfo, err := json.Marshal(state.requestInfo)
+	authCtx.requestInfo.ClientRequestID.RequestID = generateRequestID()
+	JSONRequestInfo, err := json.Marshal(authCtx.requestInfo)
 	if err != nil {
-		return state, err
+		return authCtx, err
 	}
 
-	path := fmt.Sprintf("/api/session/clients/user/v1/sessions/%s/validate", state.session.Identifier)
+	path := fmt.Sprintf("/api/session/clients/user/v1/sessions/%s/validate", authCtx.session.Identifier)
 	body := ioutil.NopCloser(strings.NewReader(string(jsonSession)))
 	req := &http.Request{
 		Method: http.MethodPost,
 		URL:    comdirectURL(path),
 		Header: http.Header{
-			AuthorizationHeaderKey:   {BearerPrefix + state.accessToken.AccessToken},
+			AuthorizationHeaderKey:   {BearerPrefix + authCtx.accessToken.AccessToken},
 			AcceptHeaderKey:          {mediatype.ApplicationJson},
 			ContentTypeHeaderKey:     {mediatype.ApplicationJson},
 			HttpRequestInfoHeaderKey: {string(JSONRequestInfo)},
 		},
 		Body: body,
 	}
+	req = req.WithContext(ctx)
 
-	res, err := a.http.exchange(req, &state.session)
+	res, err := a.http.exchange(req, &authCtx.session)
 	if err != nil || res == nil {
-		return state, err
+		return authCtx, err
 	}
 
 	jsonOnceAuthInfo := res.Header.Get(OnceAuthenticationInfoHeaderKey)
 	if jsonOnceAuthInfo == "" {
-		return state, errors.New("x-once-authentication-info header missing in response")
+		return authCtx, errors.New("x-once-authentication-info header missing in response")
 	}
 
-	err = json.Unmarshal([]byte(jsonOnceAuthInfo), &state.onceAuthInfo)
+	err = json.Unmarshal([]byte(jsonOnceAuthInfo), &authCtx.onceAuthInfo)
 
 	if err != nil {
-		return state, err
+		return authCtx, err
 	}
 
-	return state, res.Body.Close()
+	return authCtx, res.Body.Close()
 }
 
 // Step 2.4
-func (a *Authenticator) activateSessionTan(state authState) (authState, error) {
-	state.requestInfo.ClientRequestID.RequestID = generateRequestID()
-	requestInfoJSON, err := json.Marshal(state.requestInfo)
+func (a *Authenticator) activateSessionTan(ctx context.Context, authCtx authContext) (authContext, error) {
+	authCtx.requestInfo.ClientRequestID.RequestID = generateRequestID()
+	requestInfoJSON, err := json.Marshal(authCtx.requestInfo)
 	if err != nil {
-		return state, err
+		return authCtx, err
 	}
 
-	onceAuthInfoHeader := fmt.Sprintf(`{"id":"%s"}`, state.onceAuthInfo.Id)
-	path := fmt.Sprintf("/api/session/clients/user/v1/sessions/%s", state.session.Identifier)
-	JSONSession, err := json.Marshal(state.session)
+	onceAuthInfoHeader := fmt.Sprintf(`{"id":"%s"}`, authCtx.onceAuthInfo.Id)
+	path := fmt.Sprintf("/api/session/clients/user/v1/sessions/%s", authCtx.session.Identifier)
+	JSONSession, err := json.Marshal(authCtx.session)
 	req := &http.Request{
 		Method: http.MethodPatch,
 		URL:    comdirectURL(path),
 		Header: http.Header{
-			AuthorizationHeaderKey:          {BearerPrefix + state.accessToken.AccessToken},
+			AuthorizationHeaderKey:          {BearerPrefix + authCtx.accessToken.AccessToken},
 			AcceptHeaderKey:                 {mediatype.ApplicationJson},
 			ContentTypeHeaderKey:            {mediatype.ApplicationJson},
 			HttpRequestInfoHeaderKey:        {string(requestInfoJSON)},
@@ -349,21 +360,22 @@ func (a *Authenticator) activateSessionTan(state authState) (authState, error) {
 		},
 		Body: ioutil.NopCloser(strings.NewReader(string(JSONSession))),
 	}
+	req = req.WithContext(ctx)
 
-	_, err = a.http.exchange(req, &state.session)
+	_, err = a.http.exchange(req, &authCtx.session)
 
 	if err != nil {
-		return state, err
+		return authCtx, err
 	}
 
-	return state, nil
+	return authCtx, nil
 }
 
 // Step 2.5
-func (a *Authenticator) secondaryFlow(state authState) (authState, error) {
+func (a *Authenticator) secondaryFlow(ctx context.Context, authCtx authContext) (authContext, error) {
 
 	body := url.Values{
-		"token":         {state.accessToken.AccessToken},
+		"token":         {authCtx.accessToken.AccessToken},
 		"grant_type":    {SecondaryGrantType},
 		"client_id":     {a.authOptions.ClientId},
 		"client_secret": {a.authOptions.ClientSecret},
@@ -378,54 +390,60 @@ func (a *Authenticator) secondaryFlow(state authState) (authState, error) {
 		},
 		Body: ioutil.NopCloser(strings.NewReader(body)),
 	}
+	req = req.WithContext(ctx)
 
 	res, err := a.http.Do(req)
 
 	if err != nil {
-		return state, err
+		return authCtx, err
 	}
 
-	if err = json.NewDecoder(res.Body).Decode(&state.accessToken); err != nil {
-		return state, err
+	if err = json.NewDecoder(res.Body).Decode(&authCtx.accessToken); err != nil {
+		return authCtx, err
 	}
 
-	return state, res.Body.Close()
+	return authCtx, res.Body.Close()
 }
 
-func (a *Authenticator) checkAuthenticationStatus(state authState) (authState, error) {
-	state.requestInfo.ClientRequestID.RequestID = generateRequestID()
-	requestInfoJson, err := json.Marshal(state.requestInfo)
+func (a *Authenticator) checkAuthenticationStatus(ctx context.Context, authCtx authContext) (authContext, error) {
+	authCtx.requestInfo.ClientRequestID.RequestID = generateRequestID()
+	requestInfoJson, err := json.Marshal(authCtx.requestInfo)
 	if err != nil {
-		return state, err
+		return authCtx, err
 	}
 
 	req := &http.Request{
 		Method: http.MethodGet,
-		URL:    comdirectURL(state.onceAuthInfo.Link.Href),
+		URL:    comdirectURL(authCtx.onceAuthInfo.Link.Href),
 		Header: http.Header{
-			AuthorizationHeaderKey:   {BearerPrefix + state.accessToken.AccessToken},
+			AuthorizationHeaderKey:   {BearerPrefix + authCtx.accessToken.AccessToken},
 			AcceptHeaderKey:          {mediatype.ApplicationJson},
 			ContentTypeHeaderKey:     {mediatype.ApplicationJson},
 			HttpRequestInfoHeaderKey: {string(requestInfoJson)},
 		},
 	}
+	req = req.WithContext(ctx)
 
-	for { // TODO: implement max retry or something to break from loop
+	for {
+		select {
+		// Poll authentication status every 3 seconds
+		case <-time.After(3 * time.Second):
+			response, err := a.http.Do(req)
+			if err != nil {
+				return authCtx, err
+			}
+			var authStatus authStatus
+			if err = json.NewDecoder(response.Body).Decode(&authStatus); err != nil {
+				return authCtx, err
+			}
 
-		response, err := a.http.Do(req)
-		if err != nil {
-			return state, err
+			if authStatus.Status == "AUTHENTICATED" {
+				return authCtx, nil
+			}
+		// When timeout is reached return with error
+		case <-ctx.Done():
+			return authCtx, ctx.Err()
 		}
-		var authStatus authStatus
-		if err = json.NewDecoder(response.Body).Decode(&authStatus); err != nil {
-			return state, err
-		}
-
-		if authStatus.Status == "AUTHENTICATED" {
-			break
-		}
-		time.Sleep(time.Second * 5)
 	}
 
-	return state, nil
 }

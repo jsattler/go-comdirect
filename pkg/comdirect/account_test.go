@@ -1,19 +1,23 @@
 package comdirect
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestClient_Balances(t *testing.T) {
 	client := clientFromEnv()
-	auth, err := client.Authenticate()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	auth, err := client.Authenticate(ctx)
 	if err != nil {
 		t.Errorf("failed to authenticate: %s", err)
 	}
 	fmt.Printf("%+v\n", auth)
-	balances, err := client.Balances()
+	balances, err := client.Balances(ctx)
 	if err != nil {
 		t.Errorf("failed to exchange account balances %s", err)
 	}
@@ -35,7 +39,9 @@ func TestClient_Balances(t *testing.T) {
 
 func TestClient_Balance(t *testing.T) {
 	client := clientFromEnv()
-	_, err := client.Balance(os.Getenv("COMDIRECT_ACCOUNT_ID"))
+	ctx, cancel := contextTimeout10Seconds()
+	defer cancel()
+	_, err := client.Balance(ctx, os.Getenv("COMDIRECT_ACCOUNT_ID"))
 
 	if err != nil {
 		t.Errorf("failed to exchange account balance %s", err)
@@ -45,7 +51,9 @@ func TestClient_Balance(t *testing.T) {
 
 func TestClient_Transactions(t *testing.T) {
 	client := clientFromEnv()
-	transactions, err := client.Transactions(os.Getenv("COMDIRECT_ACCOUNT_ID"))
+	ctx, cancel := contextTimeout10Seconds()
+	defer cancel()
+	transactions, err := client.Transactions(ctx, os.Getenv("COMDIRECT_ACCOUNT_ID"))
 
 	if err != nil {
 		t.Errorf("failed to exchange account balance %s", err)
@@ -65,4 +73,8 @@ func clientFromEnv() *Client {
 		ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
 	}
 	return NewWithAuthOptions(options)
+}
+
+func contextTimeout10Seconds() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), time.Second*10)
 }
