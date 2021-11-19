@@ -13,11 +13,6 @@ import (
 	"time"
 )
 
-// TODO: Currently it is not possible to chose between TAN types (Photo TAN, Push TAN etc.). Only testing with P_TAN_PUSH at the moment.
-// TODO: Let the user pass in a preconfigured http.Client to follow dependency injection principle.
-// TODO: Think about accessibility of functions, structs, etc.
-// TODO: Provide an interface
-
 // Authenticator is responsible for authenticating against the comdirect REST API.
 // It uses the given AuthOptions for authentication and returns an AccessToken in case
 // the authentication flow was successful. Authenticator is using golang's default http.Client.
