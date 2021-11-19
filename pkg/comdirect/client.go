@@ -39,6 +39,7 @@ type AmountValue struct {
 	Unit  string `json:"unit"`
 }
 
+// NewWithAuthenticator creates a new Client with a given Authenticator
 func NewWithAuthenticator(authenticator *Authenticator) *Client {
 	return &Client{
 		authenticator: authenticator,
@@ -46,6 +47,7 @@ func NewWithAuthenticator(authenticator *Authenticator) *Client {
 	}
 }
 
+// NewWithAuthoptions creates a new Client with given AuthOptions
 func NewWithAuthOptions(options *AuthOptions) *Client {
 	return NewWithAuthenticator(options.NewAuthenticator())
 }
