@@ -1,3 +1,3 @@
-module "github.com/jsattler/comdirect-golang"
+module github.com/jsattler/comdirect-golang
 
-go 1.15
+go 1.17
