@@ -91,7 +91,7 @@ func (c *Client) Balances(ctx context.Context) ([]AccountBalance, error) {
 			HttpRequestInfoHeaderKey: {string(info)},
 		},
 	}
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 
 	accountBalances := &AccountBalances{}
 	_, err = c.http.exchange(req, accountBalances)
