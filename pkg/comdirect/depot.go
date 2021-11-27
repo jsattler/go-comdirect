@@ -72,12 +72,7 @@ func (c *Client) Depots() ([]Depot, error) {
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL("/brokerage/clients/user/v3/depots"),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
 	depots := &Depots{}
@@ -98,12 +93,7 @@ func (c *Client) DepotPositions(depotID string) ([]DepotPosition, error) {
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL(fmt.Sprintf("/brokerage/v3/depots/%s/positions", depotID)),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
 	depots := &Positions{}
@@ -124,12 +114,7 @@ func (c *Client) DepotPosition(depotID string, positionID string) (*DepotPositio
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL(fmt.Sprintf("/brokerage/v3/depots/%s/positions/%s", depotID, positionID)),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
 	position := &DepotPosition{}
@@ -150,12 +135,7 @@ func (c *Client) DepotTransactions(depotID string) ([]DepotTransaction, error) {
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL(fmt.Sprintf("/brokerage/v3/depots/%s/transactions", depotID)),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
 	depotTransactions := &DepotTransactions{}

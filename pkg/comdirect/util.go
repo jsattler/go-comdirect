@@ -61,3 +61,12 @@ func requestInfoJSON(sessionID string) ([]byte, error) {
 	}}
 	return json.Marshal(info)
 }
+
+func defaultHeaders(accessToken string, requestInfoHeader string) http.Header {
+	return http.Header{
+		AcceptHeaderKey:          {"application/json"},
+		ContentTypeHeaderKey:     {"application/json"},
+		AuthorizationHeaderKey:   {BearerPrefix + accessToken},
+		HttpRequestInfoHeaderKey: {requestInfoHeader},
+	}
+}

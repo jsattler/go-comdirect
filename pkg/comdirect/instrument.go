@@ -43,12 +43,7 @@ func (c *Client) Instrument(instrument string) ([]Instrument, error) {
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL(fmt.Sprintf("/brokerage/v1/instruments/%s", instrument)),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
 	instruments := &Instruments{}

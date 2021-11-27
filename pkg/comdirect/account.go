@@ -84,12 +84,7 @@ func (c *Client) Balances(ctx context.Context) ([]AccountBalance, error) {
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL("/banking/clients/user/v2/accounts/balances"),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 	req = req.WithContext(ctx)
 
@@ -111,12 +106,7 @@ func (c *Client) Balance(ctx context.Context, accountId string) (*AccountBalance
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL(fmt.Sprintf("/banking/v2/accounts/%s/balances", accountId)),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 	accountBalance := &AccountBalance{}
 	_, err = c.http.exchange(req, accountBalance)
@@ -136,12 +126,7 @@ func (c *Client) Transactions(ctx context.Context, accountId string) ([]Transact
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL(fmt.Sprintf("/banking/v1/accounts/%s/transactions", accountId)),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
 	tr := &TransactionResponse{}

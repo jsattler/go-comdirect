@@ -38,12 +38,7 @@ func (c *Client) Documents() ([]Document, error) {
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL("/messages/clients/user/v2/documents"),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
 	documents := &Documents{}
@@ -63,12 +58,7 @@ func (c *Client) Document(documentID string) (*Document, error) {
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL(fmt.Sprintf("/messages/clients/user/v2/documents/%s", documentID)),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
 	document := &Document{}

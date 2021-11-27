@@ -29,12 +29,7 @@ func (c *Client) Reports() ([]Report, error) {
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL("/reports/participants/user/v1/allbalances"),
-		Header: http.Header{
-			AcceptHeaderKey:          {"application/json"},
-			ContentTypeHeaderKey:     {"application/json"},
-			AuthorizationHeaderKey:   {BearerPrefix + c.authentication.accessToken.AccessToken},
-			HttpRequestInfoHeaderKey: {string(info)},
-		},
+		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
 	reports := &Reports{}
