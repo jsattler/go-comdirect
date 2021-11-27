@@ -99,7 +99,7 @@ func (c *Client) Balances(ctx context.Context) ([]AccountBalance, error) {
 }
 
 func (c *Client) Balance(ctx context.Context, accountId string) (*AccountBalance, error) {
-	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
+	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 
@@ -125,7 +125,7 @@ func (c *Client) Balance(ctx context.Context, accountId string) (*AccountBalance
 }
 
 func (c *Client) Transactions(ctx context.Context, accountId string) ([]Transaction, error) {
-	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
+	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 	info, err := requestInfoJSON(c.authentication.sessionID)
