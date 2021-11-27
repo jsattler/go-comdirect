@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jsattler/comdirect-golang/internal/mediatype"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/jsattler/comdirect-golang/internal/mediatype"
 )
 
 // Authenticator is responsible for authenticating against the comdirect REST API.
@@ -115,8 +116,8 @@ func NewAuthenticator(options *AuthOptions) *Authenticator {
 func NewAuthentication(accessToken AccessToken, sessionID string, time time.Time) Authentication {
 	return Authentication{
 		accessToken: accessToken,
-		sessionID: sessionID,
-		time: time,
+		sessionID:   sessionID,
+		time:        time,
 	}
 }
 
@@ -343,6 +344,11 @@ func (a *Authenticator) activateSessionTan(ctx context.Context, authCtx authCont
 	onceAuthInfoHeader := fmt.Sprintf(`{"id":"%s"}`, authCtx.onceAuthInfo.Id)
 	path := fmt.Sprintf("/api/session/clients/user/v1/sessions/%s", authCtx.session.Identifier)
 	JSONSession, err := json.Marshal(authCtx.session)
+
+	if err != nil {
+		return authContext{}, err
+	}
+
 	req := &http.Request{
 		Method: http.MethodPatch,
 		URL:    comdirectURL(path),
