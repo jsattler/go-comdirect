@@ -65,6 +65,18 @@ func (c *Client) Authenticate(ctx context.Context) (*Authentication, error) {
 	return c.authentication, nil
 }
 
+func (c *Client) SetAuthentication(auth *Authentication) error {
+	if auth == nil {
+		return errors.New("authentication cannot be nil")
+	}
+	c.authentication = auth
+	return nil
+}
+
+func (c *Client) GetAuthentication() *Authentication {
+	return c.authentication
+}
+
 // Revoke uses the underlying Authenticator to revoke an access token.
 func (c *Client) Revoke() error {
 	if c.authenticator == nil {
