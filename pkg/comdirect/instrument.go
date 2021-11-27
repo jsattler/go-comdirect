@@ -32,7 +32,7 @@ type StaticData struct {
 
 // Instrument retrieves instrument information by WKN, ISIN or mnemonic
 func (c *Client) Instrument(instrument string) ([]Instrument, error) {
-	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
+	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 	info, err := requestInfoJSON(c.authentication.sessionID)

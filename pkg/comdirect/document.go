@@ -27,7 +27,7 @@ type DocumentMetaData struct {
 }
 
 func (c *Client) Documents() ([]Document, error) {
-	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
+	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 	info, err := requestInfoJSON(c.authentication.sessionID)
@@ -52,7 +52,7 @@ func (c *Client) Documents() ([]Document, error) {
 }
 
 func (c *Client) Document(documentID string) (*Document, error) {
-	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
+	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 	info, err := requestInfoJSON(c.authentication.sessionID)

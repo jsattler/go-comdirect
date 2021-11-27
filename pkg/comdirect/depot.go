@@ -61,7 +61,7 @@ type Depots struct {
 
 // Depots retrieves all depots for the current Authentication.
 func (c *Client) Depots() ([]Depot, error) {
-	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
+	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 	info, err := requestInfoJSON(c.authentication.sessionID)
@@ -87,7 +87,7 @@ func (c *Client) Depots() ([]Depot, error) {
 
 // DepotPositions retrieves all positions for a specific depot ID.
 func (c *Client) DepotPositions(depotID string) ([]DepotPosition, error) {
-	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
+	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 	info, err := requestInfoJSON(c.authentication.sessionID)
@@ -113,7 +113,7 @@ func (c *Client) DepotPositions(depotID string) ([]DepotPosition, error) {
 
 // DepotPosition retrieves a position by its ID from the depot specified by its ID.
 func (c *Client) DepotPosition(depotID string, positionID string) (*DepotPosition, error) {
-	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
+	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 	info, err := requestInfoJSON(c.authentication.sessionID)
@@ -139,7 +139,7 @@ func (c *Client) DepotPosition(depotID string, positionID string) (*DepotPositio
 
 // DepotTransactions retrieves all transactions for a depot specified by its ID.
 func (c *Client) DepotTransactions(depotID string) ([]DepotTransaction, error) {
-	if c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
+	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
 	info, err := requestInfoJSON(c.authentication.sessionID)
