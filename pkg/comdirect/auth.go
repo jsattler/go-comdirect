@@ -121,6 +121,18 @@ func NewAuthentication(accessToken AccessToken, sessionID string, time time.Time
 	}
 }
 
+func (a *Authentication) AccessToken() AccessToken {
+	return a.accessToken
+}
+
+func (a *Authentication) SessionID() string {
+	return a.sessionID
+}
+
+func (a *Authentication) ExpiryTime() time.Time {
+	return a.time
+}
+
 // Authenticate authenticates against the comdirect REST API.
 func (a *Authenticator) Authenticate(ctx context.Context) (*Authentication, error) {
 
