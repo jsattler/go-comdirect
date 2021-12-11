@@ -17,6 +17,7 @@ type Reports struct {
 	Values []Report `json:"values"`
 }
 
+// Reports returns the balance for all available accounts.
 func (c *Client) Reports() ([]Report, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
