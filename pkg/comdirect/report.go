@@ -3,7 +3,6 @@ package comdirect
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 )
 
@@ -41,7 +40,6 @@ type Reports struct {
 
 // Reports returns the balance for all available accounts.
 func (c *Client) Reports(ctx context.Context, options ...Options) (*Reports, error) {
-	log.Println("Inside reports")
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
