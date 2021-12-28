@@ -5,7 +5,7 @@
 Install
 ---
 ```shell
-go install github.com/jsattler/go-comdirect
+go install github.com/jsattler/go-comdirect/comdirect@main
 ```
 
 Getting Started
