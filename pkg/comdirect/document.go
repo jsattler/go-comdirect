@@ -22,6 +22,7 @@ type Document struct {
 }
 
 type Documents struct {
+	Paging Paging     `json:"paging"`
 	Values []Document `json:"values"`
 }
 
@@ -31,7 +32,7 @@ type DocumentMetaData struct {
 	PreDocumentExists bool `json:"predocumentExists"`
 }
 
-func (c *Client) Documents(ctx context.Context, options ...Options) ([]Document, error) {
+func (c *Client) Documents(ctx context.Context, options ...Options) (*Documents, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -51,7 +52,7 @@ func (c *Client) Documents(ctx context.Context, options ...Options) ([]Document,
 	req = req.WithContext(ctx)
 	documents := &Documents{}
 	_, err = c.http.exchange(req, documents)
-	return documents.Values, err
+	return documents, err
 }
 
 func (c *Client) DownloadDocument(ctx context.Context, document *Document, folder string) error {

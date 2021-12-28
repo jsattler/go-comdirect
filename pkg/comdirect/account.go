@@ -33,14 +33,16 @@ type AccountType struct {
 }
 
 type AccountBalances struct {
+	Paging Paging           `json:"paging"`
 	Values []AccountBalance `json:"values"`
 }
 
-type TransactionResponse struct {
-	Values []Transaction `json:"values"`
+type AccountTransactions struct {
+	Paging Paging               `json:"paging"`
+	Values []AccountTransaction `json:"values"`
 }
 
-type Transaction struct {
+type AccountTransaction struct {
 	Reference             string          `json:"reference"`
 	BookingStatus         string          `json:"bookingStatus"`
 	BookingDate           string          `json:"bookingDate"`
@@ -72,7 +74,7 @@ type Creditor struct {
 	Bic        string `json:"bic"`
 }
 
-func (c *Client) Balances(ctx context.Context) ([]AccountBalance, error) {
+func (c *Client) Balances(ctx context.Context) (*AccountBalances, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -90,7 +92,7 @@ func (c *Client) Balances(ctx context.Context) ([]AccountBalance, error) {
 
 	accountBalances := &AccountBalances{}
 	_, err = c.http.exchange(req, accountBalances)
-	return accountBalances.Values, err
+	return accountBalances, err
 }
 
 func (c *Client) Balance(ctx context.Context, accountId string) (*AccountBalance, error) {
@@ -114,7 +116,7 @@ func (c *Client) Balance(ctx context.Context, accountId string) (*AccountBalance
 	return accountBalance, err
 }
 
-func (c *Client) Transactions(ctx context.Context, accountId string) ([]Transaction, error) {
+func (c *Client) Transactions(ctx context.Context, accountId string, options ...Options) (*AccountTransactions, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -122,15 +124,16 @@ func (c *Client) Transactions(ctx context.Context, accountId string) ([]Transact
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	url := apiURL(fmt.Sprintf("/banking/v1/accounts/%s/transactions", accountId))
+	encodeOptions(url, options)
 	req := &http.Request{
 		Method: http.MethodGet,
-		URL:    apiURL(fmt.Sprintf("/banking/v1/accounts/%s/transactions", accountId)),
+		URL:    url,
 		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
-	tr := &TransactionResponse{}
+	tr := &AccountTransactions{}
 	_, err = c.http.exchange(req, tr)
 
-	return tr.Values, err
+	return tr, err
 }

@@ -58,8 +58,8 @@ type AmountValue struct {
 }
 
 type Paging struct {
-	Index   string `json:"index"`
-	Matches string `json:"matches"`
+	Index   int `json:"index"`
+	Matches int `json:"matches"`
 }
 
 type Options struct {
