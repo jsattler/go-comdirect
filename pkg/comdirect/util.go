@@ -27,6 +27,19 @@ func comdirectURL(path string) *url.URL {
 	return &url.URL{Host: Host, Scheme: HttpsScheme, Path: path}
 }
 
+func encodeOptions(url *url.URL, options []Options) {
+	if options == nil {
+		return
+	}
+	q := url.Query()
+	for _, o := range options {
+		for k, v := range o.Values() {
+			q.Add(k, v)
+		}
+	}
+	url.RawQuery = q.Encode()
+}
+
 func generateSessionID() string {
 	buf := make([]byte, 16)
 	if _, err := rand.Read(buf); err != nil {

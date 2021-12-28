@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jsattler/comdirect-golang/internal/mediatype"
+	"github.com/jsattler/go-comdirect/internal/mediatype"
 )
 
 // Authenticator is responsible for authenticating against the comdirect REST API.
@@ -95,15 +95,6 @@ type authStatus struct {
 	Status           string `json:"status"`
 }
 
-// NewAuthenticator creates a new Authenticator from AuthOptions
-// with an http.Client configured with a timeout of DefaultHttpTimeout.
-func (a AuthOptions) NewAuthenticator() *Authenticator {
-	return &Authenticator{
-		authOptions: &a,
-		http:        &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}},
-	}
-}
-
 // NewAuthenticator creates a new Authenticator by passing AuthOptions
 // and an http.Client with a timeout of DefaultHttpTimeout.
 func NewAuthenticator(options *AuthOptions) *Authenticator {
@@ -113,8 +104,8 @@ func NewAuthenticator(options *AuthOptions) *Authenticator {
 	}
 }
 
-func NewAuthentication(accessToken AccessToken, sessionID string, time time.Time) Authentication {
-	return Authentication{
+func NewAuthentication(accessToken AccessToken, sessionID string, time time.Time) *Authentication {
+	return &Authentication{
 		accessToken: accessToken,
 		sessionID:   sessionID,
 		time:        time,

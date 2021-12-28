@@ -21,7 +21,7 @@ func TestClient_Documents(t *testing.T) {
 		return
 	}
 
-	documents, err := client.Documents()
+	documents, err := client.Documents(ctx)
 	if err != nil {
 		t.Errorf("failed to retrieve instruments: %s", err)
 	}

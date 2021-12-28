@@ -1,24 +1,47 @@
 package comdirect
 
 import (
+	"context"
 	"errors"
+	"log"
 	"net/http"
 )
 
 type Report struct {
-	ProductID            string         `json:"productId"`
-	ProductType          string         `json:"productType"`
-	TargetClientID       string         `json:"targetClientId"`
-	ClientConnectionType string         `json:"clientConnectionType"`
-	Balance              AccountBalance `json:"balance"`
+	ProductID            string        `json:"productId"`
+	ProductType          string        `json:"productType"`
+	TargetClientID       string        `json:"targetClientId"`
+	ClientConnectionType string        `json:"clientConnectionType"`
+	Balance              ReportBalance `json:"balance"`
+}
+
+type ReportBalance struct {
+	Account                Account     `json:"account"`
+	AccountId              string      `json:"accountId"`
+	Balance                AmountValue `json:"balance"`
+	BalanceEUR             AmountValue `json:"balanceEUR"`
+	AvailableCashAmount    AmountValue `json:"availableCashAmount"`
+	AvailableCashAmountEUR AmountValue `json:"availableCashAmountEUR"`
+	Depot                  Depot       `json:"depot"`
+	DepotID                string      `json:"depotId"`
+	DateLastUpdate         string      `json:"dateLastUpdate"`
+	PrevDayValue           AmountValue `json:"prevDayValue"`
+}
+
+type ReportAggregated struct {
+	BalanceEUR             AmountValue `json:"balanceEUR"`
+	AvailableCashAmountEUR AmountValue `json:"availableCashAmountEUR"`
 }
 
 type Reports struct {
-	Values []Report `json:"values"`
+	Paging           Paging           `json:"paging"`
+	ReportAggregated ReportAggregated `json:"Aggregated"`
+	Values           []Report         `json:"values"`
 }
 
 // Reports returns the balance for all available accounts.
-func (c *Client) Reports() ([]Report, error) {
+func (c *Client) Reports(ctx context.Context, options ...Options) (*Reports, error) {
+	log.Println("Inside reports")
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -26,14 +49,14 @@ func (c *Client) Reports() ([]Report, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	req := &http.Request{
 		Method: http.MethodGet,
 		URL:    apiURL("/reports/participants/user/v1/allbalances"),
 		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
+	req = req.WithContext(ctx)
 
 	reports := &Reports{}
 	_, err = c.http.exchange(req, reports)
-	return reports.Values, err
+	return reports, err
 }

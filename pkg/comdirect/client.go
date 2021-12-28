@@ -26,6 +26,24 @@ const (
 	DefaultHttpTimeout = time.Second * 30
 	HttpsScheme        = "https"
 	BearerPrefix       = "Bearer "
+
+	PagingFirstQueryKey          = "paging-first"
+	PagingCountQueryKey          = "paging-count"
+	ProductTypeQueryKey          = "productType"
+	TargetClientIDQueryKey       = "targetClientId"
+	WithoutAttrQueryKey          = "without-attr"
+	WithAttrQueryKey             = "with-attr"
+	ClientConnectionTypeQueryKey = "clientConnectionType"
+	OrderStatusQueryKey          = "orderStatus"
+	VenueIDQueryKey              = "venueId"
+	SideQueryKey                 = "side"
+	OrderTypeQueryKey            = "orderType"
+	InstrumentIDQueryKey         = "instrumentId"
+	WKNQueryKey                  = "wkn"
+	ISINQueryKey                 = "isin"
+	TypeQueryKey                 = "type"
+	BookingStatusQueryKey        = "bookingStatus"
+	MaxBookingDateQueryKey       = "max-bookingDate"
 )
 
 type Client struct {
@@ -39,6 +57,39 @@ type AmountValue struct {
 	Unit  string `json:"unit"`
 }
 
+type Paging struct {
+	Index   string `json:"index"`
+	Matches string `json:"matches"`
+}
+
+type Options struct {
+	values Values
+}
+
+type Values map[string]string
+
+func (o *Options) Add(key string, value string) *Options {
+	o.values[key] = value
+	return o
+}
+
+func EmptyOptions() Options {
+	return Options{
+		values: map[string]string{},
+	}
+}
+
+func (o *Options) WithValues(values Values) *Options {
+	for k, v := range values {
+		o.values[k] = v
+	}
+	return o
+}
+
+func (o *Options) Values() Values {
+	return o.values
+}
+
 // NewWithAuthenticator creates a new Client with a given Authenticator
 func NewWithAuthenticator(authenticator *Authenticator) *Client {
 	return &Client{
@@ -47,9 +98,16 @@ func NewWithAuthenticator(authenticator *Authenticator) *Client {
 	}
 }
 
-// NewWithAuthoptions creates a new Client with given AuthOptions
+// NewWithAuthOptions creates a new Client with given AuthOptions
 func NewWithAuthOptions(options *AuthOptions) *Client {
-	return NewWithAuthenticator(options.NewAuthenticator())
+	return NewWithAuthenticator(NewAuthenticator(options))
+}
+
+func NewWithAuthentication(authentication *Authentication) *Client {
+	return &Client{
+		authentication: authentication,
+		http:           &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}},
+	}
 }
 
 // Authenticate uses the underlying Authenticator to authenticate against the comdirect REST API.

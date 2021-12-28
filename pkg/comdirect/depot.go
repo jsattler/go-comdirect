@@ -12,6 +12,7 @@ type Depot struct {
 	ClientId                   string   `json:"clientId"`
 	DefaultSettlementAccountId string   `json:"defaultSettlementAccountId"`
 	SettlementAccountIds       []string `json:"settlementAccountIds"`
+	HolderName                 string   `json:"holderName"`
 }
 
 type DepotPosition struct {
@@ -47,20 +48,35 @@ type DepotTransaction struct {
 	FXRate               string      `json:"fxRate"`
 }
 
+type DepotAggregated struct {
+	Depot                 Depot       `json:"depot"`
+	PrevDayValue          AmountValue `json:"prevDayValue"`
+	CurrentValue          AmountValue `json:"currentValue"`
+	PurchaseValue         AmountValue `json:"purchaseValue"`
+	ProfitLossPurchaseAbs AmountValue `json:"ProfitLossPurchaseAbs"`
+	ProfitLossPurchaseRel string      `json:"profitLossPurchaseRel"`
+	ProfitLossPrevDayAbs  AmountValue `json:"profitLossPrevDayAbs"`
+	ProfitLossPrevDayRel  string      `json:"profitLossPrevDayRel"`
+}
+
 type DepotTransactions struct {
+	Paging Paging             `json:"paging"`
 	Values []DepotTransaction `json:"values"`
 }
 
-type Positions struct {
-	Values []DepotPosition `json:"values"`
+type DepotPositions struct {
+	Paging     Paging          `json:"paging"`
+	Aggregated DepotAggregated `json:"aggregated"`
+	Values     []DepotPosition `json:"values"`
 }
 
 type Depots struct {
+	Paging Paging  `json:"paging"`
 	Values []Depot `json:"values"`
 }
 
 // Depots retrieves all depots for the current Authentication.
-func (c *Client) Depots() ([]Depot, error) {
+func (c *Client) Depots() (*Depots, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -77,11 +93,11 @@ func (c *Client) Depots() ([]Depot, error) {
 
 	depots := &Depots{}
 	_, err = c.http.exchange(req, depots)
-	return depots.Values, err
+	return depots, err
 }
 
 // DepotPositions retrieves all positions for a specific depot ID.
-func (c *Client) DepotPositions(depotID string) ([]DepotPosition, error) {
+func (c *Client) DepotPositions(depotID string, options ...Options) (*DepotPositions, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -96,13 +112,13 @@ func (c *Client) DepotPositions(depotID string) ([]DepotPosition, error) {
 		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
-	depots := &Positions{}
+	depots := &DepotPositions{}
 	_, err = c.http.exchange(req, depots)
-	return depots.Values, err
+	return depots, err
 }
 
 // DepotPosition retrieves a position by its ID from the depot specified by its ID.
-func (c *Client) DepotPosition(depotID string, positionID string) (*DepotPosition, error) {
+func (c *Client) DepotPosition(depotID string, positionID string, options ...Options) (*DepotPosition, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -117,13 +133,13 @@ func (c *Client) DepotPosition(depotID string, positionID string) (*DepotPositio
 		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
 
-	position := &DepotPosition{}
-	_, err = c.http.exchange(req, position)
-	return position, err
+	positions := &DepotPosition{}
+	_, err = c.http.exchange(req, positions)
+	return positions, err
 }
 
 // DepotTransactions retrieves all transactions for a depot specified by its ID.
-func (c *Client) DepotTransactions(depotID string) ([]DepotTransaction, error) {
+func (c *Client) DepotTransactions(depotID string, options ...Options) (*DepotTransactions, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -140,5 +156,5 @@ func (c *Client) DepotTransactions(depotID string) ([]DepotTransaction, error) {
 
 	depotTransactions := &DepotTransactions{}
 	_, err = c.http.exchange(req, depotTransactions)
-	return depotTransactions.Values, err
+	return depotTransactions, err
 }

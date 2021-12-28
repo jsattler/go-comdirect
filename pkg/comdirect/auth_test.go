@@ -14,7 +14,7 @@ func TestNewAuthenticator(t *testing.T) {
 		ClientId:     "",
 		ClientSecret: "",
 	}
-	authenticator := options.NewAuthenticator()
+	authenticator := NewAuthenticator(options)
 	if authenticator.authOptions != options {
 		t.Errorf("actual AuthOptions differ from expected: %v", authenticator.authOptions)
 	}
@@ -35,7 +35,7 @@ func TestNewAuthenticator2(t *testing.T) {
 
 func TestAuthenticator_Authenticate(t *testing.T) {
 	authenticator := AuthenticatorFromEnv()
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_, err := authenticator.Authenticate(ctx)
 	if err != nil {
@@ -50,7 +50,7 @@ func AuthenticatorFromEnv() *Authenticator {
 		ClientId:     os.Getenv("COMDIRECT_CLIENT_ID"),
 		ClientSecret: os.Getenv("COMDIRECT_CLIENT_SECRET"),
 	}
-	return options.NewAuthenticator()
+	return NewAuthenticator(options)
 }
 
 func TestGenerateSessionId(t *testing.T) {

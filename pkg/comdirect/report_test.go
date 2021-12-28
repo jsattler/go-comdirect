@@ -1,7 +1,6 @@
 package comdirect
 
 import (
-	"fmt"
 	"os"
 	"testing"
 )
@@ -21,10 +20,8 @@ func TestClient_Reports(t *testing.T) {
 		return
 	}
 
-	reports, err := client.Reports()
+	_, err := client.Reports(ctx)
 	if err != nil {
 		t.Errorf("failed to retrieve instruments: %s", err)
 	}
-
-	fmt.Printf("successfully retrieved instrument:\n%+v", reports[0])
 }

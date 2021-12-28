@@ -1,11 +1,10 @@
-
-`comdirect-golang`
+`go-comdirect`
 ===
 ![version](https://img.shields.io/github/v/release/jsattler/comdirect-golang?include_prereleases)
 [![Apache License v2](https://img.shields.io/github/license/jsattler/comdirect-golang)](http://www.apache.org/licenses/)
 [![GitHub go.mod Go version of a Go module](https://img.shields.io/github/go-mod/go-version/jsattler/comdirect-golang)](https://github.com/jsattler/comdirect-golang)
 
-`comdirect-golang` is a client library to interact with
+`go-comdirect` is both a client library and CLI tool to interact with
 the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html).
 
 > **Additional Notes**
@@ -17,7 +16,7 @@ Install
 ---
 Use `go get` to install the latest version of this library:
 ```bash
-$ go get -u github.com/jsattler/comdirect-golang
+$ go get -u github.com/jsattler/go-comdirect
 ```
 
 Quick Start
@@ -38,7 +37,8 @@ client := comdirect.NewWithAuthOptions(options)
 Documentation
 ---
 You can find detailed documentation
-* on this [website](https://jsattler.github.io/comdirect-golang/#/)
+* on how to use the comdirect CLI tool
+* on this [website](https://jsattler.github.io/go-comdirect/#/)
 * in the [`docs/`](docs/getting-started.md) folder
 * or in the tests of [`pkg/comdirect`](pkg/comdirect)
 
@@ -47,8 +47,8 @@ Roadmap / To-Do
 
 * [x] Auth
   * [x] P_TAN_PUSH
-  * [ ] P_TAN_PHOTO (currently out of scope, since the package is not intended for use in front end apps)
-  * [ ] P_TAN_APP (currently out of scope, since I have no chance to test this)
+  * [ ] P_TAN_PHOTO (currently out of scope)
+  * [ ] P_TAN_APP (currently out of scope)
   * [x] Refresh Token
   * [x] Revoke Token
 * [x] Account
