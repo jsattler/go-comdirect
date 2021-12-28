@@ -7,6 +7,9 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/zalando/go-keyring v0.1.1
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+)
+
+require (
 	github.com/danieljoos/wincred v1.1.0 // indirect
 	github.com/godbus/dbus/v5 v5.0.4 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
