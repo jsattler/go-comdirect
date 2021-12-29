@@ -1,6 +1,23 @@
 `comdirect` CLI
 ===
-`comdirect` CLI tool lets you interact with your comdirect account, depot and documents. 
+`comdirect` CLI tool lets you interact with your comdirect account, depot, documents and much more.
+
+The tool currently supports the following features
+
+* View account information
+  * IBAN
+  * Type (Giro, Tagesgeld etc.)
+  * Balances
+  * Transactions 
+* View depot information 
+  * Positions
+  * Transactions
+  * Absolute and relative previous day values
+* View and download postbox documents
+  * Supports pagination and filtering
+  * Supports single and bulk download
+* View aggregated balance information for all accounts and depots
+* Output in different formats including markdown, csv and json
 
 Install
 ---
@@ -10,6 +27,8 @@ go install github.com/jsattler/go-comdirect/comdirect@main
 
 Getting Started
 ---
+>All commands and subcommands use the singular form, so instead of `accounts` it's `account`.
+>This is a convention to make it easier for users to remember the commands.
 
 ```text
 Usage:
@@ -43,6 +62,12 @@ comdirect logout
 ```
 
 ### Account
+
+List basic account information
+
+```shell
+comdirect account
+```
 
 List all account information and balances (giro Konto, tagesgeldplus etc.)
 
@@ -98,6 +123,3 @@ Retrieve a specific document
 ```shell
 comdirect document <documentID>
 ```
-
-Security
----
