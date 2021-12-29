@@ -2,22 +2,28 @@
 ===
 `comdirect` CLI tool lets you interact with your comdirect account, depot, documents and much more.
 
-The tool currently supports the following features
+The `comdirect` CLI supports the following features
 
-* View account information
-  * IBAN
-  * Type (Giro, Tagesgeld etc.)
-  * Balances
-  * Transactions 
-* View depot information 
-  * Positions
-  * Transactions
-  * Absolute and relative previous day values
-* View and download postbox documents
-  * Supports pagination and filtering
-  * Supports single and bulk download
-* View aggregated balance information for all accounts and depots
-* Output in different formats including markdown, csv and json
+- [x] View account information
+  - [x] IBAN
+  - [x] Type (Giro, Tagesgeld etc.)
+  - [x] Balances
+  - [x] Transactions 
+- [ ] View depot information
+  - [x] Positions
+    - [x] Absolute and relative previous day profit/loss
+    - [x] Absolute and relative purchase profit/loss
+    - [x] Quantity
+    - [x] Current Price per WKN
+  - [ ] Transactions (not yet implemented)
+- [x] View and download postbox documents
+  - [x] Supports pagination and filtering (not yet for all commands)
+  - [x] Supports single and bulk download
+- [x] View aggregated balance information for all accounts and depots
+- [ ] Output in different formats including 
+  - [x] markdown (table)
+  - [ ] csv
+  - [ ] json
 
 Install
 ---
