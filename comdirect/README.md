@@ -2,6 +2,8 @@
 ===
 `comdirect` CLI tool lets you interact with your comdirect account, depot, documents and much more.
 
+> So far only tested on macOS 12.1 and Fedora 33
+
 The `comdirect` CLI supports the following features
 
 - [x] View account information
