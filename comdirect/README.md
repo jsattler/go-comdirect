@@ -53,8 +53,8 @@ To log in you can specify the credentials through the options or when prompted.
 
 ```shell
 comdirect login \
-  --clientID=<clientID> \
-  --clientSecret=<clientSecret> \
+  --id=<clientID> \
+  --secret=<clientSecret> \
   --username=<username> \
   --password=<password>
 ```
