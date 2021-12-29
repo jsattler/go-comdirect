@@ -4,7 +4,7 @@
 [![Apache License v2](https://img.shields.io/github/license/jsattler/go-comdirect)](http://www.apache.org/licenses/)
 [![GitHub go.mod Go version of a Go module](https://img.shields.io/github/go-mod/go-version/jsattler/go-comdirect)](https://github.com/jsattler/go-comdirect)
 
-`go-comdirect` is both a client library and CLI tool to interact with
+`go-comdirect` is both a client library and [CLI tool](comdirect) to interact with
 the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html).
 
 > **Additional Notes**
@@ -17,6 +17,11 @@ Install
 Use `go get` to install the latest version of this library:
 ```bash
 $ go get -u github.com/jsattler/go-comdirect
+```
+
+Use `go install` to install the `comdirect` CLI tool:
+```shell
+go install github.com/jsattler/go-comdirect/comdirect@main
 ```
 
 Quick Start
@@ -37,7 +42,7 @@ client := comdirect.NewWithAuthOptions(options)
 Documentation
 ---
 You can find detailed documentation
-* on how to use the comdirect CLI tool
+* [on how to install and use the comdirect CLI tool](comdirect/README.md)
 * on this [website](https://jsattler.github.io/go-comdirect/#/)
 * in the [`docs/`](docs/getting-started.md) folder
 * or in the tests of [`pkg/comdirect`](pkg/comdirect)
