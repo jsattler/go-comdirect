@@ -1,13 +1,11 @@
 package cmd
 
 import (
-	"context"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
-	"time"
 )
 
 var (
@@ -19,8 +17,8 @@ var (
 )
 
 func balance(cmd *cobra.Command, args []string) {
-	client := InitClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	client := initClient()
+	ctx, cancel := contextWithTimeout()
 	defer cancel()
 	balances, err := client.Balances(ctx)
 	if err != nil {

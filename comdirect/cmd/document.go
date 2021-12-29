@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
@@ -9,13 +8,9 @@ import (
 	"log"
 	"os"
 	"strings"
-	"text/tabwriter"
-	"time"
 )
 
 var (
-	folder string
-
 	documentCmd = &cobra.Command{
 		Use:   "document",
 		Short: "list and download postbox documents",
@@ -24,25 +19,25 @@ var (
 )
 
 func document(cmd *cobra.Command, args []string) {
-	client := InitClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	client := initClient()
+	ctx, cancel := contextWithTimeout()
 	defer cancel()
 	options := comdirect.EmptyOptions()
-	options.Add(comdirect.PagingFirstQueryKey, pageIndex)
-	options.Add(comdirect.PagingCountQueryKey, pageCount)
+	options.Add(comdirect.PagingFirstQueryKey, indexFlag)
+	options.Add(comdirect.PagingCountQueryKey, countFlag)
 	documents, err := client.Documents(ctx, options)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if len(args) == 0 {
 		printDocumentTable(documents)
 	}
 
-	context.WithTimeout(context.Background(), 20*time.Second)
 	for _, d := range documents.Values {
 		for _, a := range args {
 			if a == d.DocumentID {
-				err := client.DownloadDocument(ctx, &d, folder)
+				err := client.DownloadDocument(ctx, &d, folderFlag)
 				if err != nil {
 					log.Fatal("failed to download document: ", err)
 				}
@@ -50,6 +45,10 @@ func document(cmd *cobra.Command, args []string) {
 			}
 		}
 	}
+}
+
+func download() {
+
 }
 
 func printDocumentTable(documents *comdirect.Documents) {
@@ -66,12 +65,4 @@ func printDocumentTable(documents *comdirect.Documents) {
 		table.Append([]string{d.DocumentID, name + "...", d.DateCreation, fmt.Sprintf("%t", d.DocumentMetaData.AlreadyRead), d.MimeType})
 	}
 	table.Render()
-}
-
-func formatDocumentTable(tw *tabwriter.Writer, doc comdirect.Document) {
-	shortName := doc.Name
-	if len(doc.Name) > 30 {
-		shortName = doc.Name[:30]
-	}
-	fmt.Fprintf(tw, "%s\t%s\t%s...\t%t\n", doc.DocumentID, doc.DateCreation, shortName, !doc.DocumentMetaData.AlreadyRead)
 }

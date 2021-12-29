@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"context"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"os"
-	"time"
 )
 
 var (
@@ -18,9 +16,9 @@ var (
 )
 
 func report(cmd *cobra.Command, args []string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	client := initClient()
+	ctx, cancel := contextWithTimeout()
 	defer cancel()
-	client := InitClient()
 	reports, err := client.Reports(ctx)
 	if err != nil {
 		return

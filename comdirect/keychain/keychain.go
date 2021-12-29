@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const servicePrefix = "github.com.jsattler.comdirect-golang."
+const servicePrefix = "github.com.jsattler.go-comdirect."
 const user = "comdirect"
 
 func StoreAuthOptions(options *comdirect.AuthOptions) error {

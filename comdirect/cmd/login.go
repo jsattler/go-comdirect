@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"github.com/jsattler/go-comdirect/comdirect/keychain"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
@@ -25,37 +24,37 @@ var (
 func login(cmd *cobra.Command, args []string) {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	if username == "" {
+	if usernameFlag == "" {
 		fmt.Print("Enter Username: ")
 		scanner.Scan()
-		username = scanner.Text()
+		usernameFlag = scanner.Text()
 	}
 
-	if password == "" {
+	if passwordFlag == "" {
 		fmt.Print("Enter Password: ")
 		bytePassword, _ := term.ReadPassword(syscall.Stdin)
-		password = string(bytePassword)
+		passwordFlag = string(bytePassword)
 		fmt.Println()
 	}
 
-	if clientID == "" {
+	if clientIDFlag == "" {
 		fmt.Print("Enter Client ID: ")
 		scanner.Scan()
-		clientID = scanner.Text()
+		clientIDFlag = scanner.Text()
 	}
 
-	if clientSecret == "" {
+	if clientSecretFlag == "" {
 		fmt.Print("Enter Client Secret: ")
 		byteClientSecret, _ := term.ReadPassword(syscall.Stdin)
-		clientSecret = string(byteClientSecret)
+		clientSecretFlag = string(byteClientSecret)
 		fmt.Println()
 	}
 
 	options := &comdirect.AuthOptions{
-		Username:     username,
-		Password:     password,
-		ClientId:     clientID,
-		ClientSecret: clientSecret,
+		Username:     usernameFlag,
+		Password:     passwordFlag,
+		ClientId:     clientIDFlag,
+		ClientSecret: clientSecretFlag,
 	}
 
 	if err := keychain.StoreAuthOptions(options); err != nil {
@@ -63,7 +62,7 @@ func login(cmd *cobra.Command, args []string) {
 	}
 
 	authenticator := comdirect.NewAuthenticator(options)
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	ctx, cancel := contextWithTimeout()
 	defer cancel()
 
 	fmt.Println("Open your comdirect photoTAN app to complete the login")
@@ -77,7 +76,7 @@ func login(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Successfully logged in - the session will expire at %s\n",
+	fmt.Printf("Successfully logged in - the session will expire in 10 minutes (%s)\n",
 		authentication.ExpiryTime().
 			Add(time.Duration(authentication.AccessToken().ExpiresIn)*time.Second).
 			Format(time.RFC3339))

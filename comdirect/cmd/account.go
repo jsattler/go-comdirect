@@ -1,37 +1,31 @@
 package cmd
 
 import (
-	"context"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
-	"time"
 )
 
 var (
 	accountCmd = &cobra.Command{
 		Use:   "account",
 		Short: "list all available accounts",
+		Args:  cobra.MinimumNArgs(0),
 		Run:   Account,
 	}
 )
 
 func Account(cmd *cobra.Command, args []string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	ctx, cancel := contextWithTimeout()
 	defer cancel()
-	client := InitClient()
+	client := initClient()
 	balances, err := client.Balances(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 	printAccountTable(balances)
-}
-
-func init() {
-	accountCmd.AddCommand(balanceCmd)
-	accountCmd.AddCommand(transactionCmd)
 }
 
 func printAccountTable(account *comdirect.AccountBalances) {

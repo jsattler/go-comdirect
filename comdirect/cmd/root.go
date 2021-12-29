@@ -9,17 +9,22 @@ import (
 	"github.com/spf13/cobra"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
 var (
-	pageIndex string
-	pageCount string
-
-	username     string
-	password     string
-	clientID     string
-	clientSecret string
+	folderFlag       string
+	excludeFlag      string
+	timeoutFlag      int
+	formatFlag       string
+	indexFlag        string
+	countFlag        string
+	downloadFlag     bool
+	usernameFlag     string
+	passwordFlag     string
+	clientIDFlag     string
+	clientSecretFlag string
 
 	rootCmd = &cobra.Command{
 		Use:   "comdirect",
@@ -37,15 +42,20 @@ func Execute() error {
 
 func init() {
 
-	loginCmd.Flags().StringVarP(&password, "password", "p", "", "comdirect password (PIN)")
-	loginCmd.Flags().StringVarP(&username, "username", "u", "", "comdirect username")
-	loginCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "comdirect client secret")
-	loginCmd.Flags().StringVarP(&clientID, "id", "i", "", "comdirect client ID")
+	loginCmd.Flags().StringVarP(&passwordFlag, "password", "p", "", "comdirect password (PIN)")
+	loginCmd.Flags().StringVarP(&usernameFlag, "username", "u", "", "comdirect username")
+	loginCmd.Flags().StringVarP(&clientSecretFlag, "secret", "s", "", "comdirect client secret")
+	loginCmd.Flags().StringVarP(&clientIDFlag, "id", "i", "", "comdirect client ID")
 
-	documentCmd.Flags().StringVar(&folder, "folder", "", "folder to save downloads")
+	documentCmd.Flags().StringVar(&folderFlag, "folder", "", "folder to save downloads")
+	documentCmd.Flags().BoolVar(&downloadFlag, "download", false, "whether to download documents")
 
-	rootCmd.PersistentFlags().StringVar(&pageIndex, "index", "0", "page index")
-	rootCmd.PersistentFlags().StringVar(&pageCount, "count", "20", "page count")
+	rootCmd.PersistentFlags().StringVar(&indexFlag, "index", "0", "page index")
+	rootCmd.PersistentFlags().StringVar(&countFlag, "count", "20", "page count")
+	rootCmd.PersistentFlags().StringVarP(&formatFlag, "format", "f", "markdown", "output format (markdown, csv or json)")
+	rootCmd.PersistentFlags().IntVarP(&timeoutFlag, "timeout", "t", 30, "timeout in seconds to validate session TAN (default 30sec)")
+	rootCmd.PersistentFlags().StringVar(&excludeFlag, "exclude", "", "exclude field from response")
+
 	rootCmd.AddCommand(documentCmd)
 	rootCmd.AddCommand(depotCmd)
 	rootCmd.AddCommand(accountCmd)
@@ -53,9 +63,25 @@ func init() {
 	rootCmd.AddCommand(logoutCmd)
 	rootCmd.AddCommand(reportCmd)
 	rootCmd.AddCommand(versionCmd)
+
+	accountCmd.AddCommand(balanceCmd)
+	accountCmd.AddCommand(transactionCmd)
 }
 
-func InitClient() *comdirect.Client {
+func contextWithTimeout() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), time.Duration(timeoutFlag)*time.Second)
+}
+
+func formatAmountValue(av comdirect.AmountValue) string {
+	value, err := strconv.ParseFloat(av.Value, 64)
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%+5.2f", value)
+}
+
+func initClient() *comdirect.Client {
 	authentication, err := keychain.RetrieveAuthentication()
 	if err != nil || authentication.IsExpired() {
 		// The session is expired, and we need to create a new session TAN
