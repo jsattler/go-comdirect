@@ -66,6 +66,8 @@ func init() {
 
 	accountCmd.AddCommand(balanceCmd)
 	accountCmd.AddCommand(transactionCmd)
+
+	depotCmd.AddCommand(positionCmd)
 }
 
 func contextWithTimeout() (context.Context, context.CancelFunc) {
