@@ -1,6 +1,7 @@
 package comdirect
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -76,7 +77,7 @@ type Depots struct {
 }
 
 // Depots retrieves all depots for the current Authentication.
-func (c *Client) Depots() (*Depots, error) {
+func (c *Client) Depots(ctx context.Context) (*Depots, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -90,14 +91,14 @@ func (c *Client) Depots() (*Depots, error) {
 		URL:    apiURL("/brokerage/clients/user/v3/depots"),
 		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
-
+	req = req.WithContext(ctx)
 	depots := &Depots{}
 	_, err = c.http.exchange(req, depots)
 	return depots, err
 }
 
 // DepotPositions retrieves all positions for a specific depot ID.
-func (c *Client) DepotPositions(depotID string, options ...Options) (*DepotPositions, error) {
+func (c *Client) DepotPositions(ctx context.Context, depotID string, options ...Options) (*DepotPositions, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -111,14 +112,14 @@ func (c *Client) DepotPositions(depotID string, options ...Options) (*DepotPosit
 		URL:    apiURL(fmt.Sprintf("/brokerage/v3/depots/%s/positions", depotID)),
 		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
-
+	req = req.WithContext(ctx)
 	depots := &DepotPositions{}
 	_, err = c.http.exchange(req, depots)
 	return depots, err
 }
 
 // DepotPosition retrieves a position by its ID from the depot specified by its ID.
-func (c *Client) DepotPosition(depotID string, positionID string, options ...Options) (*DepotPosition, error) {
+func (c *Client) DepotPosition(ctx context.Context, depotID string, positionID string, options ...Options) (*DepotPosition, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -132,6 +133,7 @@ func (c *Client) DepotPosition(depotID string, positionID string, options ...Opt
 		URL:    apiURL(fmt.Sprintf("/brokerage/v3/depots/%s/positions/%s", depotID, positionID)),
 		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
+	req = req.WithContext(ctx)
 
 	positions := &DepotPosition{}
 	_, err = c.http.exchange(req, positions)
@@ -139,7 +141,7 @@ func (c *Client) DepotPosition(depotID string, positionID string, options ...Opt
 }
 
 // DepotTransactions retrieves all transactions for a depot specified by its ID.
-func (c *Client) DepotTransactions(depotID string, options ...Options) (*DepotTransactions, error) {
+func (c *Client) DepotTransactions(ctx context.Context, depotID string, options ...Options) (*DepotTransactions, error) {
 	if c.authentication == nil || c.authentication.accessToken.AccessToken == "" || c.authentication.IsExpired() {
 		return nil, errors.New("authentication is expired or not initialized")
 	}
@@ -153,6 +155,7 @@ func (c *Client) DepotTransactions(depotID string, options ...Options) (*DepotTr
 		URL:    apiURL(fmt.Sprintf("/brokerage/v3/depots/%s/transactions", depotID)),
 		Header: defaultHeaders(c.authentication.accessToken.AccessToken, string(info)),
 	}
+	req = req.WithContext(ctx)
 
 	depotTransactions := &DepotTransactions{}
 	_, err = c.http.exchange(req, depotTransactions)
