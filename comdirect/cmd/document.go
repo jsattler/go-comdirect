@@ -30,25 +30,38 @@ func document(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if len(args) == 0 {
-		printDocumentTable(documents)
-	}
-
-	for _, d := range documents.Values {
-		for _, a := range args {
-			if a == d.DocumentID {
-				err := client.DownloadDocument(ctx, &d, folderFlag)
-				if err != nil {
-					log.Fatal("failed to download document: ", err)
+	filtered := &comdirect.Documents{Values: []comdirect.Document{}, Paging: documents.Paging}
+	if len(args) != 0 {
+		for _, d := range documents.Values {
+			for _, a := range args {
+				if a == d.DocumentID {
+					filtered.Values = append(filtered.Values, d)
 				}
-				fmt.Printf("Download complete for document with ID %s", d.DocumentID)
 			}
 		}
+	} else {
+		filtered.Values = documents.Values
+		filtered.Paging = documents.Paging
 	}
+
+	if downloadFlag {
+		download(client, filtered)
+	} else {
+		printDocumentTable(filtered)
+	}
+
 }
 
-func download() {
-
+func download(client *comdirect.Client, documents *comdirect.Documents) {
+	ctx, cancel := contextWithTimeout()
+	defer cancel()
+	for _, d := range documents.Values {
+		err := client.DownloadDocument(ctx, &d, folderFlag)
+		if err != nil {
+			log.Fatal("failed to download document: ", err)
+		}
+		fmt.Printf("Download complete for document with ID %s\n", d.DocumentID)
+	}
 }
 
 func printDocumentTable(documents *comdirect.Documents) {

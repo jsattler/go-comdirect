@@ -113,13 +113,26 @@ comdirect depot transaction <depotID>
 ```
 
 ### Document 
+Some notes on the current behavior:
+* the tool does not check if a file already exists. If it does, it will download and truncate the existing file
+* You need to specify the `--download` flag to download the files
 
-Retrieve all documents from the postbox
+List all documents from the postbox
 ```shell
 comdirect document
 ```
 
-Retrieve a specific document
+List a specific document
 ```shell
 comdirect document <documentID>
+```
+
+Download first 20 documents
+```shell
+comdirect document --count=20 --download
+```
+
+Download document by ID
+```shell
+comdirect document --download <documentID>
 ```
