@@ -11,6 +11,8 @@ the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html)
 > * The library is currently unstable and will change frequently until version 1.0.0 is released
 > * Please read the comdirect API documentation prior to using this software
 > * Use of this software is at your own risk
+> * 10 requests per second are allowed by comdirect
+> * 3 invalid TAN validation attempts will cancel the online access 
 
 Install
 ---
