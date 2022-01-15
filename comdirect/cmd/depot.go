@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/csv"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -24,9 +25,26 @@ func depot(cmd *cobra.Command, args []string) {
 	if err != nil {
 		return
 	}
-	printDepotsTable(depots)
+	switch formatFlag {
+	case "json":
+		printJSON(depots)
+	case "markdown":
+		printDepotsTable(depots)
+	case "csv":
+		printDepotsCSV(depots)
+	default:
+		printDepotsTable(depots)
+	}
 }
 
+func printDepotsCSV(depots *comdirect.Depots) {
+	table := csv.NewWriter(os.Stdout)
+	table.Write([]string{"DEPOT ID", "DISPLAY ID", "HOLDER NAME", "CLIENT ID"})
+	for _, d := range depots.Values {
+		table.Write([]string{d.DepotId, d.DepotDisplayId, d.HolderName, d.ClientId})
+	}
+	table.Flush()
+}
 func printDepotsTable(depots *comdirect.Depots) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"DEPOT ID", "DISPLAY ID", "HOLDER NAME", "CLIENT ID"})
