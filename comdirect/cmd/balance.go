@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/csv"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -24,7 +25,26 @@ func balance(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	printBalanceTable(balances)
+
+	switch formatFlag {
+	case "json":
+		printJSON(balances)
+	case "markdown":
+		printBalanceTable(balances)
+	case "csv":
+		printBalanceCSV(balances)
+	default:
+		printBalanceTable(balances)
+	}
+}
+
+func printBalanceCSV(balances *comdirect.AccountBalances) {
+	table := csv.NewWriter(os.Stdout)
+	table.Write([]string{"ID", "TYPE", "IBAN", "BALANCE"})
+	for _, a := range balances.Values {
+		table.Write([]string{a.AccountId, a.Account.AccountType.Text, a.Account.Iban, a.Balance.Value})
+	}
+	table.Flush()
 }
 
 func printBalanceTable(account *comdirect.AccountBalances) {

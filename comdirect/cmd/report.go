@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/csv"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -8,6 +9,8 @@ import (
 )
 
 var (
+	reportsHeader = []string{"ID", "TYPE", "BALANCE"}
+
 	reportCmd = &cobra.Command{
 		Use:   "report",
 		Short: "list aggregated account information",
@@ -23,12 +26,36 @@ func report(cmd *cobra.Command, args []string) {
 	if err != nil {
 		return
 	}
-	printReportsTable(reports)
+	switch formatFlag {
+	case "json":
+		printJSON(reports)
+	case "markdown":
+		printReportsTable(reports)
+	case "csv":
+		printReportsCSV(reports)
+	default:
+		printReportsTable(reports)
+	}
+}
+
+func printReportsCSV(reports *comdirect.Reports) {
+	table := csv.NewWriter(os.Stdout)
+	table.Write(reportsHeader)
+	for _, r := range reports.Values {
+		var balance string
+		if r.Balance.Balance.Value == "" {
+			balance = formatAmountValue(r.Balance.PrevDayValue)
+		} else {
+			balance = formatAmountValue(r.Balance.Balance)
+		}
+		table.Write([]string{r.ProductID, r.ProductType, balance})
+	}
+	table.Flush()
 }
 
 func printReportsTable(reports *comdirect.Reports) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"ID", "TYPE", "BALANCE"})
+	table.SetHeader(reportsHeader)
 	table.SetColumnAlignment([]int{tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT, tablewriter.ALIGN_RIGHT})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")

@@ -41,7 +41,6 @@ func document(cmd *cobra.Command, args []string) {
 		}
 	} else {
 		filtered.Values = documents.Values
-		filtered.Paging = documents.Paging
 	}
 
 	if downloadFlag {
