@@ -25,26 +25,26 @@ func login(cmd *cobra.Command, args []string) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	if usernameFlag == "" {
-		fmt.Print("Enter Username: ")
+		fmt.Print("Username: ")
 		scanner.Scan()
 		usernameFlag = scanner.Text()
 	}
 
 	if passwordFlag == "" {
-		fmt.Print("Enter Password: ")
+		fmt.Print("Password: ")
 		bytePassword, _ := term.ReadPassword(syscall.Stdin)
 		passwordFlag = string(bytePassword)
 		fmt.Println()
 	}
 
 	if clientIDFlag == "" {
-		fmt.Print("Enter Client ID: ")
+		fmt.Print("Client ID: ")
 		scanner.Scan()
 		clientIDFlag = scanner.Text()
 	}
 
 	if clientSecretFlag == "" {
-		fmt.Print("Enter Client Secret: ")
+		fmt.Print("Client Secret: ")
 		byteClientSecret, _ := term.ReadPassword(syscall.Stdin)
 		clientSecretFlag = string(byteClientSecret)
 		fmt.Println()

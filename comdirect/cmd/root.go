@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/jsattler/go-comdirect/comdirect/keychain"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/spf13/cobra"
@@ -30,10 +29,6 @@ var (
 		Use:   "comdirect",
 		Short: "comdirect is a CLI tool to interact with the comdirect REST API",
 	}
-
-	boldGreen = color.New(color.FgGreen, color.Bold).SprintfFunc()
-	boldRed   = color.New(color.FgRed, color.Bold).SprintfFunc()
-	bold      = color.New(color.Bold).SprintFunc()
 )
 
 func Execute() error {
@@ -89,10 +84,10 @@ func initClient() *comdirect.Client {
 		// The session is expired, and we need to create a new session TAN
 		authOptions, err := keychain.RetrieveAuthOptions()
 		if err != nil {
-			fmt.Println("You're not logged in - please use 'comdirect login' to log in")
+			fmt.Println("You're not logged in. Please use 'comdirect login' to log in")
 			os.Exit(1)
 		}
-		fmt.Println("Session expired - please open the comdirect photoTAN app to validate a new session")
+		fmt.Println("Your session expired. Please open the comdirect photoTAN app to validate a new session.")
 		client := comdirect.NewWithAuthOptions(authOptions)
 		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()

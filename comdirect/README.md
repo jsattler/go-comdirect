@@ -1,31 +1,8 @@
 `comdirect` CLI
 ===
-`comdirect` CLI tool lets you interact with your comdirect account, depot, documents and much more.
+`comdirect` CLI tool lets you interact with your comdirect account, depot, documents and other resources.
 
 > So far only tested on macOS 12.1 and Fedora 33
-
-The `comdirect` CLI supports the following features
-
-- [x] View account information
-  - [x] IBAN
-  - [x] Type (Giro, Tagesgeld etc.)
-  - [x] Balances
-  - [x] Transactions 
-- [ ] View depot information
-  - [x] Positions
-    - [x] Absolute and relative previous day profit/loss
-    - [x] Absolute and relative purchase profit/loss
-    - [x] Quantity
-    - [x] Current Price per WKN
-  - [ ] Transactions (not yet implemented)
-- [x] View and download postbox documents
-  - [x] Supports pagination and filtering (not yet for all commands)
-  - [x] Supports single and bulk download
-- [x] View aggregated balance information for all accounts and depots
-- [ ] Output in different formats including 
-  - [x] markdown (table)
-  - [ ] csv
-  - [ ] json
 
 Install
 ---
