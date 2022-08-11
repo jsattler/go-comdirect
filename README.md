@@ -1,4 +1,4 @@
-`go-comdirect`
+go-comdirect
 ===
 ![version](https://img.shields.io/github/v/release/jsattler/go-comdirect?include_prereleases)
 [![Apache License v2](https://img.shields.io/github/license/jsattler/go-comdirect)](http://www.apache.org/licenses/)
@@ -13,6 +13,18 @@ the [comdirect REST API](https://www.comdirect.de/cms/kontakt-zugaenge-api.html)
 > * Use of this software is at your own risk
 > * 10 requests per second are allowed by comdirect
 > * 3 invalid TAN validation attempts will cancel the online access 
+
+Features
+---
+* **Auth:** Authenticate and authorize with the comdirect API.
+* **Account:** Access your account data like balances or transactions.
+* **Depot:** Access your depot data like balances, positions or transactions.
+* **Instrument:** Access instrument data by providing a WKN, ISIN or symbol.
+* **Order:** create, modify and delete orders.
+In addition, you can query the order book and the status of individual orders, as well as view the display the cost statement for an order. (open #8)
+* **Quote:** Do live trading and prepare the query of a quote or execute it (open #9).
+* **Documents:** Access and download Postbox-documents.
+* **Reports:** Access aggregated reports for multiple of your comdirect products.
 
 Install
 ---
@@ -48,41 +60,3 @@ You can find detailed documentation
 * on this [website](https://jsattler.github.io/go-comdirect/#/)
 * in the [`docs/`](docs/getting-started.md) folder
 * or in the tests of [`pkg/comdirect`](pkg/comdirect)
-
-Roadmap / To-Do
----
-
-* [x] Auth
-  * [x] P_TAN_PUSH
-  * [ ] P_TAN_PHOTO (currently out of scope)
-  * [ ] P_TAN_APP (currently out of scope)
-  * [x] Refresh Token
-  * [x] Revoke Token
-* [x] Account
-  * [x] All Balances
-  * [x] Balance by Account ID
-  * [x] Transactions
-* [x] Depot
-  * [x] All Depots
-  * [x] Positions by Depot ID
-  * [x] Position by Depot ID and Position ID
-  * [x] Transactions by Depot ID
-* [x] Instrument
-  * [x] Instrument by Instrument ID
-* [ ] Order
-  * [x] Dimensions
-  * [ ] Orders by Depot ID
-  * [ ] Order by Order ID
-  * [ ] Order Pre-Validation
-  * [ ] Order Validation
-  * [ ] Generate Order Cost Indication Ex-Ante
-* [ ] Quote
-  * [ ] Quote-Request Validation and TAN Challenge Request
-  * [ ] Quote-Request Validation and TAN validation
-  * [ ] Create Quote-Request Request
-* [x] Documents
-  * [x] Documents (Postbox)
-  * [x] Document by ID
-  * [ ] Pre-Document (currently out of scope, since I have no document to test this with)
-* [x] Reports
-  * [x] Balances of all comdirect products
