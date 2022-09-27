@@ -25,7 +25,14 @@ func Account(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	printAccountTable(balances)
+	switch formatFlag {
+	case "json":
+		printJSON(balances)
+	case "markdown":
+		printAccountTable(balances)
+	default:
+		printAccountTable(balances)
+	}
 }
 
 func printAccountTable(account *comdirect.AccountBalances) {
