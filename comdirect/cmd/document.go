@@ -46,7 +46,14 @@ func document(cmd *cobra.Command, args []string) {
 	if downloadFlag {
 		download(client, filtered)
 	} else {
-		printDocumentTable(filtered)
+		switch formatFlag {
+		case "json":
+			printJSON(filtered)
+		case "markdown":
+			printDocumentTable(filtered)
+		default:
+			printDocumentTable(filtered)
+		}
 	}
 
 }
