@@ -135,6 +135,10 @@ func (c *Client) GetAuthentication() *Authentication {
 	return c.authentication
 }
 
+func (c *Client) IsAuthenticated() bool {
+	return c.authentication != nil && c.authentication.accessToken.AccessToken != "" && !c.authentication.IsExpired()
+}
+
 // Revoke uses the underlying Authenticator to revoke an access token.
 func (c *Client) Revoke() error {
 	if c.authenticator == nil {
