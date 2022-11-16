@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -392,7 +393,7 @@ func (a *Authenticator) secondaryFlow(ctx context.Context, authCtx authContext) 
 			http.CanonicalHeaderKey(AcceptHeaderKey):      {mediatype.ApplicationJson},
 			http.CanonicalHeaderKey(ContentTypeHeaderKey): {mediatype.XWWWFormUrlEncoded},
 		},
-		Body: ioutil.NopCloser(strings.NewReader(body)),
+		Body: io.NopCloser(strings.NewReader(body)),
 	}
 	req = req.WithContext(ctx)
 
