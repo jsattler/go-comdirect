@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 var (
@@ -61,10 +62,14 @@ func document(cmd *cobra.Command, args []string) {
 func download(client *comdirect.Client, documents *comdirect.Documents) {
 	ctx, cancel := contextWithTimeout()
 	defer cancel()
-	for _, d := range documents.Values {
+	for i, d := range documents.Values {
 		err := client.DownloadDocument(ctx, &d, folderFlag)
 		if err != nil {
 			log.Fatal("failed to download document: ", err)
+		}
+		// TODO: think about a better solution to limit download requests to 10/sec
+		if i % 10 == 0  && i != 0{
+			time.Sleep(900 * time.Millisecond)
 		}
 		fmt.Printf("Download complete for document with ID %s\n", d.DocumentID)
 	}
