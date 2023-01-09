@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.6.1
-	github.com/zalando/go-keyring v0.2.1
+	github.com/zalando/go-keyring v0.2.2
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
 )
 
