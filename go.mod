@@ -6,7 +6,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.6.1
 	github.com/zalando/go-keyring v0.2.3
-	golang.org/x/term v0.7.0
+	golang.org/x/term v0.8.0
 )
 
 require (
