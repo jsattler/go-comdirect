@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"golang.org/x/time/rate"
 )
 
 // TODO: Think about where to put the stuff in here.
@@ -15,6 +17,7 @@ import (
 
 type HTTPClient struct {
 	http.Client
+	rate.Limiter
 }
 
 // api.comdirect.de/api/{path}
@@ -55,6 +58,10 @@ func generateRequestID() string {
 }
 
 func (h *HTTPClient) exchange(request *http.Request, target interface{}) (*http.Response, error) {
+	err := h.Wait(request.Context())
+	if err != nil {
+		return nil, err
+	}
 	res, err := h.Do(request)
 	if err != nil {
 		return res, err

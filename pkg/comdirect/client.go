@@ -5,6 +5,8 @@ import (
 	"errors"
 	"net/http"
 	"time"
+
+	"golang.org/x/time/rate"
 )
 
 const (
@@ -94,7 +96,7 @@ func (o *Options) Values() Values {
 func NewWithAuthenticator(authenticator *Authenticator) *Client {
 	return &Client{
 		authenticator: authenticator,
-		http:          &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}},
+		http:          &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}, *rate.NewLimiter(10, 10)},
 	}
 }
 
@@ -106,7 +108,7 @@ func NewWithAuthOptions(options *AuthOptions) *Client {
 func NewWithAuthentication(authentication *Authentication) *Client {
 	return &Client{
 		authentication: authentication,
-		http:           &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}},
+		http:           &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}, *rate.NewLimiter(10, 10)},
 	}
 }
 
