@@ -142,6 +142,9 @@ func (c *Client) Transactions(ctx context.Context, accountId string, options ...
 func (a *AccountTransactions) FilterSince(date time.Time) (*AccountTransactions, error) {
 	filteredTransactions := &AccountTransactions{Paging: a.Paging}
 	for _, v := range a.Values {
+		if v.BookingStatus == "NOTBOOKED" {
+			continue
+		}
 		const transactionDateLayout = "2006-01-02"
 		d, err := time.Parse(transactionDateLayout, v.BookingDate)
 		if err != nil {
