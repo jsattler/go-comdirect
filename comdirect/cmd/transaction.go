@@ -4,11 +4,14 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"time"
+
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"log"
-	"os"
 )
 
 var (
@@ -22,16 +25,49 @@ var (
 )
 
 func transaction(cmd *cobra.Command, args []string) {
-	client := initClient()
-	ctx, cancel := contextWithTimeout()
-	defer cancel()
-
-	options := comdirect.EmptyOptions()
-	options.Add(comdirect.PagingCountQueryKey, countFlag)
-	options.Add(comdirect.PagingFirstQueryKey, indexFlag)
-	transactions, err := client.Transactions(ctx, args[0], options)
+	const dateLayout = "2006-01-02"
+	since, err := time.Parse(dateLayout, sinceFlag)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to parse date from command line: %s", err)
+	}
+
+	client := initClient()
+	var transactions = &comdirect.AccountTransactions{}
+
+	page := 1
+	pageCount, err := strconv.Atoi(countFlag)
+	if err != nil {
+		log.Fatalf("Can't convert string to int: %s", err)
+	}
+	for {
+		options := comdirect.EmptyOptions()
+		options.Add(comdirect.PagingCountQueryKey, fmt.Sprint(pageCount*page))
+		options.Add(comdirect.PagingFirstQueryKey, fmt.Sprint(0))
+		ctx, cancel := contextWithTimeout()
+		defer cancel()
+
+		transactions, err = client.Transactions(ctx, args[0], options)
+		if err != nil {
+			log.Fatalf("Error retrieving transactions: %e", err)
+		}
+
+		if len(transactions.Values) == 0 {
+			break
+		}
+
+		lastDate, err := time.Parse(dateLayout, transactions.Values[len(transactions.Values)-1].BookingDate)
+		if err != nil {
+			log.Fatalf("Failed to parse date from command line: %s", err)
+		}
+		if transactions.Paging.Matches == len(transactions.Values) || lastDate.Before(since) {
+			break
+		}
+		page++
+	}
+
+	transactions, err = transactions.FilterSince(since)
+	if err != nil {
+		log.Fatalf("Error filtering transactions by date: %e", err)
 	}
 
 	switch formatFlag {

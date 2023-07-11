@@ -3,13 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/jsattler/go-comdirect/comdirect/keychain"
-	"github.com/jsattler/go-comdirect/pkg/comdirect"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/jsattler/go-comdirect/comdirect/keychain"
+	"github.com/jsattler/go-comdirect/pkg/comdirect"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -19,6 +20,7 @@ var (
 	formatFlag       string
 	indexFlag        string
 	countFlag        string
+	sinceFlag        string
 	downloadFlag     bool
 	usernameFlag     string
 	passwordFlag     string
@@ -44,6 +46,8 @@ func init() {
 
 	documentCmd.Flags().StringVar(&folderFlag, "folder", "", "folder to save downloads")
 	documentCmd.Flags().BoolVar(&downloadFlag, "download", false, "whether to download documents")
+
+	transactionCmd.PersistentFlags().StringVar(&sinceFlag, "since", time.Now().Add(time.Hour*-1*24*30).Format("2006-01-02"), "Date of the earliest transaction date to retrieve in the form YYYY-MM-DD")
 
 	rootCmd.PersistentFlags().StringVar(&indexFlag, "index", "0", "page index")
 	rootCmd.PersistentFlags().StringVar(&countFlag, "count", "20", "page count")

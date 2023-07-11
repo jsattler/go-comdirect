@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 type AccountBalance struct {
@@ -136,4 +137,24 @@ func (c *Client) Transactions(ctx context.Context, accountId string, options ...
 	_, err = c.http.exchange(req, tr)
 
 	return tr, err
+}
+
+func (a *AccountTransactions) FilterSince(date time.Time) (*AccountTransactions, error) {
+	filteredTransactions := &AccountTransactions{Paging: a.Paging}
+	for _, v := range a.Values {
+		if v.BookingStatus == "NOTBOOKED" {
+			continue
+		}
+		const transactionDateLayout = "2006-01-02"
+		d, err := time.Parse(transactionDateLayout, v.BookingDate)
+		if err != nil {
+			log.Fatalf("Failed to parse date from transaction: %s", err)
+		}
+		if d.Before(date) {
+			break
+		} else {
+			filteredTransactions.Values = append(filteredTransactions.Values, v)
+		}
+	}
+	return filteredTransactions, nil
 }

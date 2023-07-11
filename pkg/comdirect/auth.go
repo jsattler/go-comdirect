@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/jsattler/go-comdirect/internal/mediatype"
+	"golang.org/x/time/rate"
 )
 
 // Authenticator is responsible for authenticating against the comdirect REST API.
@@ -101,7 +102,7 @@ type authStatus struct {
 func NewAuthenticator(options *AuthOptions) *Authenticator {
 	return &Authenticator{
 		authOptions: options,
-		http:        &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}},
+		http:        &HTTPClient{http.Client{Timeout: DefaultHttpTimeout}, *rate.NewLimiter(10, 10)},
 	}
 }
 

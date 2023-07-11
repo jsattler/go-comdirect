@@ -53,15 +53,16 @@ func TestClient_Transactions(t *testing.T) {
 	client := clientFromEnv()
 	ctx, cancel := contextTimeout10Seconds()
 	defer cancel()
-	transactions, err := client.Transactions(ctx, os.Getenv("COMDIRECT_ACCOUNT_ID"))
+	since := time.Now().Add(time.Hour * -1 * 24 * 30)
+	transactions, err := client.Transactions(ctx, os.Getenv("COMDIRECT_ACCOUNT_ID"), since)
 
 	if err != nil {
 		t.Errorf("failed to exchange account balance %s", err)
 		return
 	}
 
-	for _, t := range transactions {
-		fmt.Printf("%v\n", t)
+	for _, tr := range transactions.Values {
+		fmt.Printf("%v\n", tr)
 	}
 }
 
