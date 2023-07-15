@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
+	"text/template"
 	"time"
 
+	"github.com/jsattler/go-comdirect/comdirect/tpl"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -91,18 +92,19 @@ func printJSON(v interface{}) {
 }
 
 func printTransactionCSV(transactions *comdirect.AccountTransactions) {
-	table := csv.NewWriter(os.Stdout)
-	table.Write(transactionHeader)
-	for _, t := range transactions.Values {
-		holderName := t.Remitter.HolderName
-		if len(holderName) > 30 {
-			holderName = holderName[:30]
-		} else if holderName == "" {
-			holderName = "N/A"
-		}
-		table.Write([]string{holderName, t.Creditor.HolderName, t.BookingDate, t.BookingStatus, t.TransactionType.Text, formatAmountValue(t.Amount), t.Amount.Unit})
+	t, err := template.New("transaction.tmpl").Funcs(
+		template.FuncMap{
+			"formatAmountValue": formatAmountValue,
+			"holderName":        holderName,
+		},
+	).ParseFS(tpl.Default, "transaction.tmpl")
+	if err != nil {
+		log.Fatal(err)
 	}
-	table.Flush()
+	err = t.ExecuteTemplate(os.Stdout, "transaction.tmpl", transactions)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 func printTransactionTable(transactions *comdirect.AccountTransactions) {
 	table := tablewriter.NewWriter(os.Stdout)
@@ -121,4 +123,13 @@ func printTransactionTable(transactions *comdirect.AccountTransactions) {
 		table.Append([]string{holderName, t.Creditor.HolderName, t.BookingDate, t.BookingStatus, t.TransactionType.Text, formatAmountValue(t.Amount), t.Amount.Unit})
 	}
 	table.Render()
+}
+
+func holderName(holderName string) string {
+	if len(holderName) > 30 {
+		holderName = holderName[:30]
+	} else if holderName == "" {
+		holderName = "N/A"
+	}
+	return holderName
 }
