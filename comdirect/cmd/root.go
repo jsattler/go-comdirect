@@ -26,6 +26,7 @@ var (
 	passwordFlag     string
 	clientIDFlag     string
 	clientSecretFlag string
+	templateFlag     string
 
 	rootCmd = &cobra.Command{
 		Use:   "comdirect",
@@ -54,6 +55,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&formatFlag, "format", "f", "markdown", "output format (markdown, csv or json)")
 	rootCmd.PersistentFlags().IntVarP(&timeoutFlag, "timeout", "t", 30, "timeout in seconds to validate session TAN (default 30sec)")
 	rootCmd.PersistentFlags().StringVar(&excludeFlag, "exclude", "", "exclude field from response")
+	rootCmd.PersistentFlags().StringVar(&templateFlag, "template", "", "template file name to format csv output")
 
 	rootCmd.AddCommand(documentCmd)
 	rootCmd.AddCommand(depotCmd)

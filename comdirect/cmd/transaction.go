@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"text/template"
 	"time"
@@ -92,16 +93,28 @@ func printJSON(v interface{}) {
 }
 
 func printTransactionCSV(transactions *comdirect.AccountTransactions) {
-	t, err := template.New("transaction.tmpl").Funcs(
+	tplName := "transaction.tpl"
+	if templateFlag != "" {
+		tplName = filepath.Base(templateFlag)
+	}
+	t := template.New(tplName).Funcs(
 		template.FuncMap{
 			"formatAmountValue": formatAmountValue,
 			"holderName":        holderName,
 		},
-	).ParseFS(tpl.Default, "transaction.tmpl")
+	)
+
+	var err error
+	if templateFlag != "" {
+		t, err = t.ParseFiles(templateFlag)
+	} else {
+		t, err = t.ParseFS(tpl.Default, "transaction.tmpl")
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = t.ExecuteTemplate(os.Stdout, "transaction.tmpl", transactions)
+
+	err = t.ExecuteTemplate(os.Stdout, t.Name(), transactions)
 	if err != nil {
 		log.Fatal(err)
 	}
