@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strconv"
-	"text/template"
 	"time"
 
-	"github.com/jsattler/go-comdirect/comdirect/tpl"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -93,27 +90,10 @@ func printJSON(v interface{}) {
 }
 
 func printTransactionCSV(transactions *comdirect.AccountTransactions) {
-	tplName := "transaction.tpl"
-	if templateFlag != "" {
-		tplName = filepath.Base(templateFlag)
-	}
-	t := template.New(tplName).Funcs(
-		template.FuncMap{
-			"formatAmountValue": formatAmountValue,
-			"holderName":        holderName,
-		},
-	)
-
-	var err error
-	if templateFlag != "" {
-		t, err = t.ParseFiles(templateFlag)
-	} else {
-		t, err = t.ParseFS(tpl.Default, "transaction.tmpl")
-	}
+	t, err := getCSVTemplate("transaction.tmpl")
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	err = t.ExecuteTemplate(os.Stdout, t.Name(), transactions)
 	if err != nil {
 		log.Fatal(err)

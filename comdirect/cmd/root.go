@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
+	"text/template"
 	"time"
 
 	"github.com/jsattler/go-comdirect/comdirect/keychain"
+	"github.com/jsattler/go-comdirect/comdirect/tpl"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/spf13/cobra"
 )
@@ -109,4 +112,22 @@ func initClient() *comdirect.Client {
 		return client
 	}
 	return comdirect.NewWithAuthentication(authentication)
+}
+
+func getCSVTemplate(tplName string) (*template.Template, error) {
+	if templateFlag != "" {
+		tplName = filepath.Base(templateFlag)
+	}
+
+	t := template.New(tplName).Funcs(
+		template.FuncMap{
+			"formatAmountValue": formatAmountValue,
+			"holderName":        holderName,
+		},
+	)
+
+	if templateFlag != "" {
+		return t.ParseFiles(templateFlag)
+	}
+	return t.ParseFS(tpl.Default, tplName)
 }
