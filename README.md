@@ -60,3 +60,10 @@ You can find detailed documentation
 * on this [website](https://jsattler.github.io/go-comdirect/#/)
 * in the [`docs/`](docs/getting-started.md) folder
 * or in the tests of [`pkg/comdirect`](pkg/comdirect)
+
+
+## Contributing
+Your contributions are appreciated! Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for further information.
+
+## License
+Please refer to [LICENSE](LICENSE) for further information.
