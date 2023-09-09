@@ -120,6 +120,7 @@ func printTransactionCSV(transactions *comdirect.AccountTransactions) {
 		log.Fatal(err)
 	}
 }
+
 func printTransactionTable(transactions *comdirect.AccountTransactions) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader(transactionHeader)
