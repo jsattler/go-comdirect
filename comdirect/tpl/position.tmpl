@@ -1,0 +1,4 @@
+POSITION ID,WKN,QUANTITY,CURRENT PRICE,PREVDAY %,PURCHASE %,PURCHASE,CURRENT
+{{- range .Values}}
+{{.PositionId}},{{.Wkn}},{{.Quantity.Value}},{{.CurrentPrice.Price.Value}},{{.ProfitLossPrevDayRel}},{{.ProfitLossPurchaseRel}},{{.PurchaseValue.Value}},{{.CurrentValue.Value}}
+{{- end}}
