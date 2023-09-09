@@ -51,7 +51,7 @@ func init() {
 	documentCmd.Flags().StringVar(&folderFlag, "folder", "", "folder to save downloads")
 	documentCmd.Flags().BoolVar(&downloadFlag, "download", false, "whether to download documents")
 
-	transactionCmd.PersistentFlags().StringVar(&sinceFlag, "since", time.Now().Add(time.Hour*-1*24*30).Format("2006-01-02"), "Date of the earliest transaction date to retrieve in the form YYYY-MM-DD")
+	transactionCmd.PersistentFlags().StringVar(&sinceFlag, "since", "", "Date of the earliest transaction date to retrieve in the form YYYY-MM-DD")
 
 	rootCmd.PersistentFlags().StringVar(&indexFlag, "index", "0", "page index")
 	rootCmd.PersistentFlags().StringVar(&countFlag, "count", "20", "page count")
