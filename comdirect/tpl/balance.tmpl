@@ -1,0 +1,4 @@
+ID,TYPE,IBAN,BALANCE
+{{- range .Values}}
+{{.AccountId}},{{.Account.AccountType.Text}},{{.Account.Iban}},{{.Balance.Value}}
+{{- end}}
