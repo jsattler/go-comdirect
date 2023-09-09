@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"encoding/csv"
+	"log"
+	"os"
+
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var (
@@ -39,18 +40,14 @@ func report(cmd *cobra.Command, args []string) {
 }
 
 func printReportsCSV(reports *comdirect.Reports) {
-	table := csv.NewWriter(os.Stdout)
-	table.Write(reportsHeader)
-	for _, r := range reports.Values {
-		var balance string
-		if r.Balance.Balance.Value == "" {
-			balance = formatAmountValue(r.Balance.PrevDayValue)
-		} else {
-			balance = formatAmountValue(r.Balance.Balance)
-		}
-		table.Write([]string{r.ProductID, r.ProductType, balance})
+	t, err := getCSVTemplate("report.tmpl")
+	if err != nil {
+		log.Fatal(err)
 	}
-	table.Flush()
+	err = t.ExecuteTemplate(os.Stdout, t.Name(), reports)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func printReportsTable(reports *comdirect.Reports) {
