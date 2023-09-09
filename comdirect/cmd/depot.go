@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"encoding/csv"
+	"log"
+	"os"
+
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var (
@@ -38,12 +39,14 @@ func depot(cmd *cobra.Command, args []string) {
 }
 
 func printDepotsCSV(depots *comdirect.Depots) {
-	table := csv.NewWriter(os.Stdout)
-	table.Write([]string{"DEPOT ID", "DISPLAY ID", "HOLDER NAME", "CLIENT ID"})
-	for _, d := range depots.Values {
-		table.Write([]string{d.DepotId, d.DepotDisplayId, d.HolderName, d.ClientId})
+	t, err := getCSVTemplate("depot.tmpl")
+	if err != nil {
+		log.Fatal(err)
 	}
-	table.Flush()
+	err = t.ExecuteTemplate(os.Stdout, t.Name(), depots)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 func printDepotsTable(depots *comdirect.Depots) {
 	table := tablewriter.NewWriter(os.Stdout)
