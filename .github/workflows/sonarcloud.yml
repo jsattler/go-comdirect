@@ -1,8 +1,11 @@
 name: SonarCloud
 on:
+  push:
+    branches:
+      - 'main'
   pull_request:
     branches:
-      - main
+      - 'main'
 jobs:
   sonarcloud:
     name: SonarCloud
