@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -112,19 +111,16 @@ func printJSON(v interface{}) {
 }
 
 func printTransactionCSV(transactions *comdirect.AccountTransactions) {
-	table := csv.NewWriter(os.Stdout)
-	table.Write(transactionHeader)
-	for _, t := range transactions.Values {
-		holderName := t.Remitter.HolderName
-		if len(holderName) > 30 {
-			holderName = holderName[:30]
-		} else if holderName == "" {
-			holderName = "N/A"
-		}
-		table.Write([]string{holderName, t.Creditor.HolderName, t.BookingDate, t.BookingStatus, t.TransactionType.Text, formatAmountValue(t.Amount), t.Amount.Unit})
+	t, err := getCSVTemplate("transaction.tmpl")
+	if err != nil {
+		log.Fatal(err)
 	}
-	table.Flush()
+	err = t.ExecuteTemplate(os.Stdout, t.Name(), transactions)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
+
 func printTransactionTable(transactions *comdirect.AccountTransactions) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader(transactionHeader)
@@ -142,4 +138,13 @@ func printTransactionTable(transactions *comdirect.AccountTransactions) {
 		table.Append([]string{holderName, t.Creditor.HolderName, t.BookingDate, t.BookingStatus, t.TransactionType.Text, formatAmountValue(t.Amount), t.Amount.Unit})
 	}
 	table.Render()
+}
+
+func holderName(holderName string) string {
+	if len(holderName) > 30 {
+		holderName = holderName[:30]
+	} else if holderName == "" {
+		holderName = "N/A"
+	}
+	return holderName
 }

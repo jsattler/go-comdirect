@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
+	"text/template"
 	"time"
 
 	"github.com/jsattler/go-comdirect/comdirect/keychain"
+	"github.com/jsattler/go-comdirect/comdirect/tpl"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/spf13/cobra"
 )
@@ -26,6 +29,7 @@ var (
 	passwordFlag     string
 	clientIDFlag     string
 	clientSecretFlag string
+	templateFlag     string
 
 	rootCmd = &cobra.Command{
 		Use:   "comdirect",
@@ -54,6 +58,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&formatFlag, "format", "f", "markdown", "output format (markdown, csv or json)")
 	rootCmd.PersistentFlags().IntVarP(&timeoutFlag, "timeout", "t", 30, "timeout in seconds to validate session TAN (default 30sec)")
 	rootCmd.PersistentFlags().StringVar(&excludeFlag, "exclude", "", "exclude field from response")
+	rootCmd.PersistentFlags().StringVar(&templateFlag, "template", "", "template file name to format csv output")
 
 	rootCmd.AddCommand(documentCmd)
 	rootCmd.AddCommand(depotCmd)
@@ -107,4 +112,22 @@ func initClient() *comdirect.Client {
 		return client
 	}
 	return comdirect.NewWithAuthentication(authentication)
+}
+
+func getCSVTemplate(tplName string) (*template.Template, error) {
+	if templateFlag != "" {
+		tplName = filepath.Base(templateFlag)
+	}
+
+	t := template.New(tplName).Funcs(
+		template.FuncMap{
+			"formatAmountValue": formatAmountValue,
+			"holderName":        holderName,
+		},
+	)
+
+	if templateFlag != "" {
+		return t.ParseFiles(templateFlag)
+	}
+	return t.ParseFS(tpl.Default, tplName)
 }

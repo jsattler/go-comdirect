@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/jsattler/go-comdirect/pkg/comdirect"
-	"github.com/olekukonko/tablewriter"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/jsattler/go-comdirect/pkg/comdirect"
+	"github.com/olekukonko/tablewriter"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -52,6 +53,8 @@ func document(cmd *cobra.Command, args []string) {
 			printJSON(filtered)
 		case "markdown":
 			printDocumentTable(filtered)
+		case "csv":
+			printDocumentCSV(filtered)
 		default:
 			printDocumentTable(filtered)
 		}
@@ -68,10 +71,21 @@ func download(client *comdirect.Client, documents *comdirect.Documents) {
 			log.Fatal("failed to download document: ", err)
 		}
 		// TODO: think about a better solution to limit download requests to 10/sec
-		if i % 10 == 0  && i != 0{
+		if i%10 == 0 && i != 0 {
 			time.Sleep(900 * time.Millisecond)
 		}
 		fmt.Printf("Download complete for document with ID %s\n", d.DocumentID)
+	}
+}
+
+func printDocumentCSV(documents *comdirect.Documents) {
+	t, err := getCSVTemplate("document.tmpl")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = t.ExecuteTemplate(os.Stdout, t.Name(), documents)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 

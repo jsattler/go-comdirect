@@ -1,0 +1,4 @@
+ID,TYPE,BALANCE
+{{- range .Values}}
+{{.ProductID}},{{.ProductType}},{{if eq .Balance.Balance.Value ""}}{{formatAmountValue .Balance.PrevDayValue}}{{else}}{{formatAmountValue .Balance.Balance}}{{end}}
+{{- end}}

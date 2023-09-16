@@ -1,0 +1,4 @@
+ID,NAME,DATE,OPENED,TYPE
+{{- range .Values}}
+{{.DocumentID}},"{{.Name}}",{{.DateCreation}},{{.DocumentMetaData.AlreadyRead}},{{.MimeType}}
+{{- end}}
