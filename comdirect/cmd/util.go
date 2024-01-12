@@ -6,24 +6,32 @@ import (
 	"os"
 )
 
-func printJSON(v interface{}) {
+// Format JSON input and write to global output file which might be stdout.
+func writeJSON(v interface{}) {
 	b, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	outputFile.Write(b)
+	getOutputFile().Write(b)
 }
 
-func getWriteTarget() *os.File {
-	t := os.Stdout
+func getOutputFile() *os.File {
+	if outputFile == nil {
+		return os.Stdout
+	}
+	return outputFile
+}
+
+// Read global fileFlag variable and set the
+func getOutputFileFromFlag() *os.File {
 	if fileFlag != "" && fileFlag != "-" {
 		outputFile, err := os.OpenFile(fileFlag, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			println(err)
 		} else {
-			t = outputFile
+			return outputFile
 		}
 	}
-	return t
+	return nil
 }

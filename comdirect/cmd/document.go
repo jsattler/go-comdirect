@@ -49,7 +49,7 @@ func document(cmd *cobra.Command, args []string) {
 	} else {
 		switch formatFlag {
 		case "json":
-			printJSON(filtered)
+			writeJSON(filtered)
 		case "markdown":
 			printDocumentTable(filtered)
 		default:
@@ -76,7 +76,7 @@ func download(client *comdirect.Client, documents *comdirect.Documents) {
 }
 
 func printDocumentTable(documents *comdirect.Documents) {
-	table := tablewriter.NewWriter(outputFile)
+	table := tablewriter.NewWriter(getOutputFile())
 	table.SetHeader([]string{"ID", "NAME", "DATE", "OPENED", "TYPE"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")

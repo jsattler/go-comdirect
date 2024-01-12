@@ -31,8 +31,9 @@ var (
 	outputFile *os.File
 
 	rootCmd = &cobra.Command{
-		Use:   "comdirect",
-		Short: "comdirect is a CLI tool to interact with the comdirect REST API",
+		Use:               "comdirect",
+		Short:             "comdirect is a CLI tool to interact with the comdirect REST API",
+		PersistentPostRun: closeOutputFile,
 	}
 )
 
@@ -112,7 +113,13 @@ func initClient() *comdirect.Client {
 	}
 
 	// Set the target file to write to from the global fileFlag option.
-	outputFile = getWriteTarget()
+	outputFile = getOutputFileFromFlag()
 
 	return comdirect.NewWithAuthentication(authentication)
+}
+
+func closeOutputFile(cmd *cobra.Command, args []string) {
+	if outputFile != nil {
+		outputFile.Close()
+	}
 }

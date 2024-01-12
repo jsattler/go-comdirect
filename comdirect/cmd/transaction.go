@@ -43,7 +43,7 @@ func transaction(cmd *cobra.Command, args []string) {
 
 	switch formatFlag {
 	case "json":
-		printJSON(transactions)
+		writeJSON(transactions)
 	case "markdown":
 		printTransactionTable(transactions)
 	case "csv":
@@ -102,7 +102,7 @@ func getTransactionsSince(since string, client *comdirect.Client, accountID stri
 }
 
 func printTransactionCSV(transactions *comdirect.AccountTransactions) {
-	table := csv.NewWriter(outputFile)
+	table := csv.NewWriter(getOutputFile())
 	table.Write(transactionHeader)
 	for _, t := range transactions.Values {
 		holderName := t.Remitter.HolderName
@@ -116,7 +116,7 @@ func printTransactionCSV(transactions *comdirect.AccountTransactions) {
 	table.Flush()
 }
 func printTransactionTable(transactions *comdirect.AccountTransactions) {
-	table := tablewriter.NewWriter(outputFile)
+	table := tablewriter.NewWriter(getOutputFile())
 	table.SetHeader(transactionHeader)
 	table.SetColumnAlignment([]int{tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT, tablewriter.ALIGN_RIGHT})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})

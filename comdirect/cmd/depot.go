@@ -27,7 +27,7 @@ func depot(cmd *cobra.Command, args []string) {
 	}
 	switch formatFlag {
 	case "json":
-		printJSON(depots)
+		writeJSON(depots)
 	case "markdown":
 		printDepotsTable(depots)
 	case "csv":
@@ -38,15 +38,16 @@ func depot(cmd *cobra.Command, args []string) {
 }
 
 func printDepotsCSV(depots *comdirect.Depots) {
-	table := csv.NewWriter(outputFile)
+	table := csv.NewWriter(getOutputFile())
 	table.Write([]string{"DEPOT ID", "DISPLAY ID", "HOLDER NAME", "CLIENT ID"})
 	for _, d := range depots.Values {
 		table.Write([]string{d.DepotId, d.DepotDisplayId, d.HolderName, d.ClientId})
 	}
 	table.Flush()
 }
+
 func printDepotsTable(depots *comdirect.Depots) {
-	table := tablewriter.NewWriter(outputFile)
+	table := tablewriter.NewWriter(getOutputFile())
 	table.SetHeader([]string{"DEPOT ID", "DISPLAY ID", "HOLDER NAME", "CLIENT ID"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")

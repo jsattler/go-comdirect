@@ -28,7 +28,7 @@ func report(cmd *cobra.Command, args []string) {
 	}
 	switch formatFlag {
 	case "json":
-		printJSON(reports)
+		writeJSON(reports)
 	case "markdown":
 		printReportsTable(reports)
 	case "csv":
@@ -39,7 +39,7 @@ func report(cmd *cobra.Command, args []string) {
 }
 
 func printReportsCSV(reports *comdirect.Reports) {
-	table := csv.NewWriter(outputFile)
+	table := csv.NewWriter(getOutputFile())
 	table.Write(reportsHeader)
 	for _, r := range reports.Values {
 		var balance string
@@ -54,7 +54,7 @@ func printReportsCSV(reports *comdirect.Reports) {
 }
 
 func printReportsTable(reports *comdirect.Reports) {
-	table := tablewriter.NewWriter(outputFile)
+	table := tablewriter.NewWriter(getOutputFile())
 	table.SetHeader(reportsHeader)
 	table.SetColumnAlignment([]int{tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT, tablewriter.ALIGN_RIGHT})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
