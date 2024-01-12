@@ -1,11 +1,11 @@
 package cmd
 
 import (
+	"log"
+
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"log"
-	"os"
 )
 
 var (
@@ -27,7 +27,7 @@ func Account(cmd *cobra.Command, args []string) {
 	}
 	switch formatFlag {
 	case "json":
-		printJSON(balances)
+		writeJSON(balances)
 	case "markdown":
 		printAccountTable(balances)
 	default:
@@ -36,7 +36,7 @@ func Account(cmd *cobra.Command, args []string) {
 }
 
 func printAccountTable(account *comdirect.AccountBalances) {
-	table := tablewriter.NewWriter(os.Stdout)
+	table := tablewriter.NewWriter(getOutputBuffer())
 	table.SetHeader([]string{"ID", "TYPE", "IBAN", "CREDIT LIMIT"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")

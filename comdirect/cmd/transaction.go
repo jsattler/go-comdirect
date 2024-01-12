@@ -2,10 +2,8 @@ package cmd
 
 import (
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
@@ -45,7 +43,7 @@ func transaction(cmd *cobra.Command, args []string) {
 
 	switch formatFlag {
 	case "json":
-		printJSON(transactions)
+		writeJSON(transactions)
 	case "markdown":
 		printTransactionTable(transactions)
 	case "csv":
@@ -103,16 +101,8 @@ func getTransactionsSince(since string, client *comdirect.Client, accountID stri
 	return transactions
 }
 
-func printJSON(v interface{}) {
-	b, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(string(b))
-}
-
 func printTransactionCSV(transactions *comdirect.AccountTransactions) {
-	table := csv.NewWriter(os.Stdout)
+	table := csv.NewWriter(getOutputBuffer())
 	table.Write(transactionHeader)
 	for _, t := range transactions.Values {
 		holderName := t.Remitter.HolderName
@@ -126,7 +116,7 @@ func printTransactionCSV(transactions *comdirect.AccountTransactions) {
 	table.Flush()
 }
 func printTransactionTable(transactions *comdirect.AccountTransactions) {
-	table := tablewriter.NewWriter(os.Stdout)
+	table := tablewriter.NewWriter(getOutputBuffer())
 	table.SetHeader(transactionHeader)
 	table.SetColumnAlignment([]int{tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT, tablewriter.ALIGN_LEFT, tablewriter.ALIGN_RIGHT})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})

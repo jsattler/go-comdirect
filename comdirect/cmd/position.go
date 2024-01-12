@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"encoding/csv"
+
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var (
@@ -28,7 +28,7 @@ func position(cmd *cobra.Command, args []string) {
 	}
 	switch formatFlag {
 	case "json":
-		printJSON(positions)
+		writeJSON(positions)
 	case "markdown":
 		printPositionsTable(positions)
 	case "csv":
@@ -39,7 +39,7 @@ func position(cmd *cobra.Command, args []string) {
 }
 
 func printPositionsCSV(positions *comdirect.DepotPositions) {
-	table := csv.NewWriter(os.Stdout)
+	table := csv.NewWriter(getOutputBuffer())
 	table.Write([]string{"POSITION ID", "WKN", "QUANTITY", "CURRENT PRICE", "PREVDAY %", "PURCHASE %", "PURCHASE", "CURRENT"})
 	for _, d := range positions.Values {
 		table.Write([]string{d.PositionId, d.Wkn, d.Quantity.Value, d.CurrentPrice.Price.Value, d.ProfitLossPrevDayRel, d.ProfitLossPurchaseRel, d.PurchaseValue.Value, d.CurrentValue.Value})
@@ -48,7 +48,7 @@ func printPositionsCSV(positions *comdirect.DepotPositions) {
 }
 
 func printPositionsTable(depots *comdirect.DepotPositions) {
-	table := tablewriter.NewWriter(os.Stdout)
+	table := tablewriter.NewWriter(getOutputBuffer())
 	table.SetHeader([]string{"POSITION ID", "WKN", "QUANTITY", "CURRENT PRICE", "PREVDAY %", "PURCHASE %", "PURCHASE", "CURRENT"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -26,10 +27,14 @@ var (
 	passwordFlag     string
 	clientIDFlag     string
 	clientSecretFlag string
+	fileFlag         string
+
+	outputBuffer bytes.Buffer
 
 	rootCmd = &cobra.Command{
-		Use:   "comdirect",
-		Short: "comdirect is a CLI tool to interact with the comdirect REST API",
+		Use:               "comdirect",
+		Short:             "comdirect is a CLI tool to interact with the comdirect REST API",
+		PersistentPostRun: writeToOutputFile,
 	}
 )
 
@@ -54,6 +59,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&formatFlag, "format", "f", "markdown", "output format (markdown, csv or json)")
 	rootCmd.PersistentFlags().IntVarP(&timeoutFlag, "timeout", "t", 30, "timeout in seconds to validate session TAN (default 30sec)")
 	rootCmd.PersistentFlags().StringVar(&excludeFlag, "exclude", "", "exclude field from response")
+	rootCmd.PersistentFlags().StringVarP(&fileFlag, "output", "o", "-", "file name to write the output to (defaults to stdout)")
 
 	rootCmd.AddCommand(documentCmd)
 	rootCmd.AddCommand(depotCmd)
@@ -106,5 +112,6 @@ func initClient() *comdirect.Client {
 		}
 		return client
 	}
+
 	return comdirect.NewWithAuthentication(authentication)
 }
