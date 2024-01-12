@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 )
@@ -13,8 +12,7 @@ func printJSON(v interface{}) {
 		log.Fatal(err)
 	}
 
-	c := fmt.Sprintf(string(b))
-	outputFile.WriteString(c)
+	outputFile.Write(b)
 }
 
 func getWriteTarget() *os.File {
