@@ -23,7 +23,8 @@ func getOutputFile() *os.File {
 	return outputFile
 }
 
-// Read global fileFlag variable and set the
+// Read global fileFlag variable and return a file pointer to the target file if any.
+// This function return nil if the target file is stdout.
 func getOutputFileFromFlag() *os.File {
 	if fileFlag != "" && fileFlag != "-" {
 		outputFile, err := os.OpenFile(fileFlag, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
