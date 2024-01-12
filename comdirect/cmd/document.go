@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"log"
-	"os"
-	"strings"
-	"time"
 )
 
 var (
@@ -68,7 +68,7 @@ func download(client *comdirect.Client, documents *comdirect.Documents) {
 			log.Fatal("failed to download document: ", err)
 		}
 		// TODO: think about a better solution to limit download requests to 10/sec
-		if i % 10 == 0  && i != 0{
+		if i%10 == 0 && i != 0 {
 			time.Sleep(900 * time.Millisecond)
 		}
 		fmt.Printf("Download complete for document with ID %s\n", d.DocumentID)
@@ -76,7 +76,7 @@ func download(client *comdirect.Client, documents *comdirect.Documents) {
 }
 
 func printDocumentTable(documents *comdirect.Documents) {
-	table := tablewriter.NewWriter(os.Stdout)
+	table := tablewriter.NewWriter(outputFile)
 	table.SetHeader([]string{"ID", "NAME", "DATE", "OPENED", "TYPE"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")

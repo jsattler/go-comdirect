@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"encoding/csv"
+	"log"
+
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"log"
-	"os"
 )
 
 var (
@@ -39,7 +39,7 @@ func balance(cmd *cobra.Command, args []string) {
 }
 
 func printBalanceCSV(balances *comdirect.AccountBalances) {
-	table := csv.NewWriter(os.Stdout)
+	table := csv.NewWriter(outputFile)
 	table.Write([]string{"ID", "TYPE", "IBAN", "BALANCE"})
 	for _, a := range balances.Values {
 		table.Write([]string{a.AccountId, a.Account.AccountType.Text, a.Account.Iban, a.Balance.Value})
@@ -48,7 +48,7 @@ func printBalanceCSV(balances *comdirect.AccountBalances) {
 }
 
 func printBalanceTable(account *comdirect.AccountBalances) {
-	table := tablewriter.NewWriter(os.Stdout)
+	table := tablewriter.NewWriter(outputFile)
 	table.SetHeader([]string{"ID", "TYPE", "IBAN", "BALANCE"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")

@@ -26,6 +26,9 @@ var (
 	passwordFlag     string
 	clientIDFlag     string
 	clientSecretFlag string
+	fileFlag         string
+
+	outputFile *os.File
 
 	rootCmd = &cobra.Command{
 		Use:   "comdirect",
@@ -54,6 +57,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&formatFlag, "format", "f", "markdown", "output format (markdown, csv or json)")
 	rootCmd.PersistentFlags().IntVarP(&timeoutFlag, "timeout", "t", 30, "timeout in seconds to validate session TAN (default 30sec)")
 	rootCmd.PersistentFlags().StringVar(&excludeFlag, "exclude", "", "exclude field from response")
+	rootCmd.PersistentFlags().StringVarP(&fileFlag, "output", "o", "-", "file name to write the output to (defaults to stdout)")
 
 	rootCmd.AddCommand(documentCmd)
 	rootCmd.AddCommand(depotCmd)
@@ -106,5 +110,9 @@ func initClient() *comdirect.Client {
 		}
 		return client
 	}
+
+	// Set the target file to write to from the global fileFlag option.
+	outputFile = getWriteTarget()
+
 	return comdirect.NewWithAuthentication(authentication)
 }
