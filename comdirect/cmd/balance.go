@@ -39,7 +39,7 @@ func balance(cmd *cobra.Command, args []string) {
 }
 
 func printBalanceCSV(balances *comdirect.AccountBalances) {
-	table := csv.NewWriter(getOutputFile())
+	table := csv.NewWriter(getOutputBuffer())
 	table.Write([]string{"ID", "TYPE", "IBAN", "BALANCE"})
 	for _, a := range balances.Values {
 		table.Write([]string{a.AccountId, a.Account.AccountType.Text, a.Account.Iban, a.Balance.Value})
@@ -48,7 +48,7 @@ func printBalanceCSV(balances *comdirect.AccountBalances) {
 }
 
 func printBalanceTable(account *comdirect.AccountBalances) {
-	table := tablewriter.NewWriter(getOutputFile())
+	table := tablewriter.NewWriter(getOutputBuffer())
 	table.SetHeader([]string{"ID", "TYPE", "IBAN", "BALANCE"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")

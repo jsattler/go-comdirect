@@ -36,7 +36,7 @@ func Account(cmd *cobra.Command, args []string) {
 }
 
 func printAccountTable(account *comdirect.AccountBalances) {
-	table := tablewriter.NewWriter(getOutputFile())
+	table := tablewriter.NewWriter(getOutputBuffer())
 	table.SetHeader([]string{"ID", "TYPE", "IBAN", "CREDIT LIMIT"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")

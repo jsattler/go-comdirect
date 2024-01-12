@@ -76,7 +76,7 @@ func download(client *comdirect.Client, documents *comdirect.Documents) {
 }
 
 func printDocumentTable(documents *comdirect.Documents) {
-	table := tablewriter.NewWriter(getOutputFile())
+	table := tablewriter.NewWriter(getOutputBuffer())
 	table.SetHeader([]string{"ID", "NAME", "DATE", "OPENED", "TYPE"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
