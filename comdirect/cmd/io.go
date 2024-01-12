@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -30,7 +31,7 @@ func writeToOutputFile(cmd *cobra.Command, args []string) {
 	} else {
 		f, err := os.OpenFile(fileFlag, os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
-			println(err)
+			fmt.Println(err)
 		} else {
 			outputBuffer.WriteTo(f)
 			f.Close()
