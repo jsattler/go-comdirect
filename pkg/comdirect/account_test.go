@@ -54,10 +54,15 @@ func TestClient_Transactions(t *testing.T) {
 	ctx, cancel := contextTimeout10Seconds()
 	defer cancel()
 	since := time.Now().Add(time.Hour * -1 * 24 * 30)
-	transactions, err := client.Transactions(ctx, os.Getenv("COMDIRECT_ACCOUNT_ID"), since)
-
+	transactions, err := client.Transactions(ctx, os.Getenv("COMDIRECT_ACCOUNT_ID"))
 	if err != nil {
-		t.Errorf("failed to exchange account balance %s", err)
+		t.Errorf("failed to exchange account transactions %s", err)
+		return
+	}
+
+	transactions, err = transactions.FilterSince(since)
+	if err != nil {
+		t.Errorf("failed to filter account transactions %s", err)
 		return
 	}
 

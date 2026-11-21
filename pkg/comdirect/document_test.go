@@ -23,8 +23,8 @@ func TestClient_Documents(t *testing.T) {
 
 	documents, err := client.Documents(ctx)
 	if err != nil {
-		t.Errorf("failed to retrieve instruments: %s", err)
+		t.Errorf("failed to retrieve documents: %s", err)
 	}
 
-	fmt.Printf("successfully retrieved instrument:\n%+v", documents[0])
+	fmt.Printf("successfully retrieved documents:\n%+v", documents.Values)
 }

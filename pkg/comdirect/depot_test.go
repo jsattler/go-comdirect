@@ -22,7 +22,7 @@ func TestClient_Depots(t *testing.T) {
 		return
 	}
 
-	depots, err := client.Depots()
+	depots, err := client.Depots(ctx)
 	if err != nil {
 		t.Errorf("failed to retrieve depots: %s", err)
 	}
@@ -45,7 +45,7 @@ func TestClient_DepotPositions(t *testing.T) {
 		return
 	}
 
-	depotPositions, err := client.DepotPositions(os.Getenv("COMDIRECT_DEPOT_ID"))
+	depotPositions, err := client.DepotPositions(ctx, os.Getenv("COMDIRECT_DEPOT_ID"))
 	if err != nil {
 		t.Errorf("failed to retrieve depot positions: %s", err)
 	}
@@ -69,7 +69,7 @@ func TestClient_DepotPosition(t *testing.T) {
 		return
 	}
 
-	depotPositions, err := client.DepotPosition(os.Getenv("COMDIRECT_DEPOT_ID"), os.Getenv("COMDIRECT_POSITION_ID"))
+	depotPositions, err := client.DepotPosition(ctx, os.Getenv("COMDIRECT_DEPOT_ID"), os.Getenv("COMDIRECT_POSITION_ID"))
 	if err != nil {
 		t.Errorf("failed to retrieve depot position: %s", err)
 	}
@@ -93,7 +93,7 @@ func TestClient_DepotTransactions(t *testing.T) {
 		return
 	}
 
-	depotTransactions, err := client.DepotTransactions(os.Getenv("COMDIRECT_DEPOT_ID"))
+	depotTransactions, err := client.DepotTransactions(ctx, os.Getenv("COMDIRECT_DEPOT_ID"))
 	if err != nil {
 		t.Errorf("failed to retrieve depot transactions: %s", err)
 	}
