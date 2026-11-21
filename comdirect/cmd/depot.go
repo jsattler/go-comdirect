@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/csv"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
-	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -46,10 +45,7 @@ func printDepotsCSV(depots *comdirect.Depots) {
 	table.Flush()
 }
 func printDepotsTable(depots *comdirect.Depots) {
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"DEPOT ID", "DISPLAY ID", "HOLDER NAME", "CLIENT ID"})
-	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-	table.SetCenterSeparator("|")
+	table := newTable([]string{"DEPOT ID", "DISPLAY ID", "HOLDER NAME", "CLIENT ID"})
 	for _, d := range depots.Values {
 		table.Append([]string{d.DepotId, d.DepotDisplayId, d.HolderName, d.ClientId})
 	}

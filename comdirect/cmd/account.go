@@ -2,10 +2,8 @@ package cmd
 
 import (
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
-	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"log"
-	"os"
 )
 
 var (
@@ -36,10 +34,7 @@ func Account(cmd *cobra.Command, args []string) {
 }
 
 func printAccountTable(account *comdirect.AccountBalances) {
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"ID", "TYPE", "IBAN", "CREDIT LIMIT"})
-	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-	table.SetCenterSeparator("|")
+	table := newTable([]string{"ID", "TYPE", "IBAN", "CREDIT LIMIT"})
 	for _, a := range account.Values {
 		table.Append([]string{a.AccountId, a.Account.AccountType.Text, a.Account.Iban, a.Account.CreditLimit.Value})
 	}
