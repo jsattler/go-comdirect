@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
-	"github.com/olekukonko/tablewriter/tw"
 	"github.com/spf13/cobra"
 )
 
@@ -126,8 +125,8 @@ func printTransactionCSV(transactions *comdirect.AccountTransactions) {
 	table.Flush()
 }
 func printTransactionTable(transactions *comdirect.AccountTransactions) {
-	table := newTable(transactionHeader, tw.AlignLeft, tw.AlignLeft, tw.AlignLeft, tw.AlignLeft, tw.AlignLeft, tw.AlignRight)
-	setTableCaption(table, fmt.Sprintf("%d out of %d", len(transactions.Values), transactions.Paging.Matches))
+	table := newTable(transactionHeader, alignLeft, alignLeft, alignLeft, alignLeft, alignLeft, alignRight)
+	table.SetCaption(fmt.Sprintf("%d out of %d", len(transactions.Values), transactions.Paging.Matches))
 	for _, t := range transactions.Values {
 		holderName := t.Remitter.HolderName
 		if len(holderName) > 30 {

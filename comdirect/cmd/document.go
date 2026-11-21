@@ -75,7 +75,7 @@ func download(client *comdirect.Client, documents *comdirect.Documents) {
 
 func printDocumentTable(documents *comdirect.Documents) {
 	table := newTable([]string{"ID", "NAME", "DATE", "OPENED", "TYPE"})
-	setTableCaption(table, fmt.Sprintf("%d out of %d", len(documents.Values), documents.Paging.Matches))
+	table.SetCaption(fmt.Sprintf("%d out of %d", len(documents.Values), documents.Paging.Matches))
 	for _, d := range documents.Values {
 		name := strings.ReplaceAll(d.Name, " ", "-")
 		if len(name) > 30 {

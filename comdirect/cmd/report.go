@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/csv"
 	"github.com/jsattler/go-comdirect/pkg/comdirect"
-	"github.com/olekukonko/tablewriter/tw"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -54,7 +53,7 @@ func printReportsCSV(reports *comdirect.Reports) {
 }
 
 func printReportsTable(reports *comdirect.Reports) {
-	table := newTable(reportsHeader, tw.AlignLeft, tw.AlignLeft, tw.AlignRight)
+	table := newTable(reportsHeader, alignLeft, alignLeft, alignRight)
 	for _, r := range reports.Values {
 		var balance string
 		if r.Balance.Balance.Value == "" {
