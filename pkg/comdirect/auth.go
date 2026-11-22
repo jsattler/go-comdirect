@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -174,7 +173,7 @@ func (a *Authenticator) Refresh(auth Authentication) (Authentication, error) {
 		"refresh_token": {auth.accessToken.RefreshToken},
 	}.Encode()
 
-	body := ioutil.NopCloser(strings.NewReader(encoded))
+	body := io.NopCloser(strings.NewReader(encoded))
 	req := &http.Request{
 		Method: http.MethodPost,
 		URL:    &url.URL{Host: Host, Scheme: HttpsScheme, Path: OAuthTokenPath},
@@ -230,7 +229,7 @@ func (a *Authenticator) passwordGrant(ctx context.Context, options *AuthOptions)
 		"client_secret": {options.ClientSecret},
 	}.Encode()
 
-	body := ioutil.NopCloser(strings.NewReader(urlEncoded))
+	body := io.NopCloser(strings.NewReader(urlEncoded))
 	req := &http.Request{
 		Method: http.MethodPost,
 		URL:    &url.URL{Host: Host, Scheme: HttpsScheme, Path: OAuthTokenPath},
@@ -305,7 +304,7 @@ func (a *Authenticator) validateSessionTan(ctx context.Context, authCtx authCont
 	}
 
 	path := fmt.Sprintf("/api/session/clients/user/v1/sessions/%s/validate", authCtx.session.Identifier)
-	body := ioutil.NopCloser(strings.NewReader(string(jsonSession)))
+	body := io.NopCloser(strings.NewReader(string(jsonSession)))
 	req := &http.Request{
 		Method: http.MethodPost,
 		URL:    comdirectURL(path),
@@ -364,7 +363,7 @@ func (a *Authenticator) activateSessionTan(ctx context.Context, authCtx authCont
 			HttpRequestInfoHeaderKey:        {string(requestInfoJSON)},
 			OnceAuthenticationInfoHeaderKey: {onceAuthInfoHeader},
 		},
-		Body: ioutil.NopCloser(strings.NewReader(string(JSONSession))),
+		Body: io.NopCloser(strings.NewReader(string(JSONSession))),
 	}
 	req = req.WithContext(ctx)
 
